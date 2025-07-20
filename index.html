@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="/favicon.ico"
+    />
+    <link
+      rel="preload"
+      as="font"
+      crossorigin="anonymous"
+      type="font/woff2"
+      href="font/GenJyuuGothic-P.woff2"
+    />
+
+    <link
+      rel="icon"
+      href="logo.svg"
+      sizes="any"
+      type="image/svg+xml"
+    />
+    <link
+      rel="alternate icon"
+      href="logo.svg"
+      type="image/png"
+      sizes="16x16"
+    />
+    <link
+      rel="apple-touch-icon"
+      href="logo.svg"
+      sizes="180x180"
+    />
+    <link
+      rel="mask-icon"
+      href="logo.svg"
+    />
+    <link
+      rel="manifest"
+      href="manifest.json"
+    />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover, user-scalable=0"
+    />
+    <meta
+      name="description"
+      content="This is an online instant PDF signature website."
+    />
+    <meta
+      name="theme-color"
+      content="#B7EC5D"
+    />
+    <meta
+      name="keywords"
+      content="pdf,pdf-signature,pdf-signature-online"
+    />
+    <meta
+      property="og:title"
+      content="PDF Signature"
+    />
+    <meta
+      property="og:description"
+      content="This is an online instant PDF signature website."
+    />
+    <meta
+      property="og:url"
+      content="https://pdf-signature-puce.vercel.app"
+    />
+    <meta
+      property="og:site_name"
+      content="PDF Signature"
+    />
+    <meta
+      property="og:image"
+      content="https://pdf-signature-puce.vercel.app/cover.jpg"
+    />
+    <meta
+      property="og:image:width"
+      content="800"
+    />
+    <meta
+      property="og:image:height"
+      content="600"
+    />
+    <meta
+      property="og:type"
+      content="website"
+    />
+    <meta
+      name="twitter:card"
+      content="https://pdf-signature-puce.vercel.app/cover.jpg"
+    />
+    <meta
+      name="twitter:title"
+      content="PDF Signature"
+    />
+    <meta
+      name="twitter:description"
+      content="This is an online instant PDF signature website."
+    />
+    <meta
+      name="twitter:image"
+      content="https://pdf-signature-puce.vercel.app/cover.jpg"
+    />
+    <meta
+      name="twitter:image:width"
+      content="800"
+    />
+    <meta
+      name="twitter:image:height"
+      content="600"
+    />
+
+    <title>PDF Signature</title>
+  </head>
+
+  <body>
+    <div id="app"></div>
+    <!-- prettier-ignore -->
+    <%- include('loading') %> 
+    <%- include('safe-area') %>
+
+    <script
+      type="module"
+      src="/src/main.ts"
+    ></script>
+  </body>
+</html>

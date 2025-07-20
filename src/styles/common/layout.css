@@ -1,0 +1,23 @@
+@layer components {
+  .layout {
+    position: relative;
+    min-height: 100dvh;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .layout.step {
+    margin-top: 40px;
+  }
+
+  @media (min-width: 768px) {
+    .layout {
+      display: flex;
+      justify-content: center;
+    }
+
+    .layout.step {
+      margin-top: 0px;
+    }
+  }
+}

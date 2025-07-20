@@ -1,0 +1,127 @@
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
+
+// Layouts
+import GuestLayout from '@/layouts/GuestLayout.vue';
+import AuthLayout from '@/layouts/AuthLayout.vue';
+
+// Pages
+import LandingPage from '@/pages/LandingPage.vue';
+import Login from '@/pages/Auth/Login.vue';
+import Index from '@/pages/Dashboard/Index.vue';
+import Home from '@/pages/home/index.vue';
+import Signature from '@/pages/signature/index.vue';
+import Upload from '@/pages/upload/index.vue';
+import Complete from '@/pages/complete/index.vue';
+import EmployeeIndex from '@/pages/Employees/EmployeeIndex.vue';
+import TrackDocComponent from '@/pages/TrackDocument/TrackDocComponent.vue';
+
+// Store
+import { useAuthStore } from '@/stores/modules/user';
+
+const routes: Array<RouteRecordRaw> = [
+  // {
+  //   path: '/:catchAll(.*)',
+  //   redirect: '/',
+  // },
+
+  // 👤 Guest Layout (no auth)
+  {
+    path: '/',
+    component: GuestLayout,
+    children: [
+      {
+        path: '',
+        name: 'landing',
+        component: LandingPage,
+        meta: { requiresAuth: false },
+      },
+      {
+        path: 'login',
+        name: 'login',
+        component: Login,
+        meta: { requiresAuth: false },
+      },
+    ],
+  },
+
+  // 🔒 Auth Layout (requires auth)
+  {
+    path: '/',
+    component: AuthLayout,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: 'dashboard',
+        name: 'home',
+        component: Index,
+      },
+      {
+        path: 'employees',
+        name: 'employees',
+        component: EmployeeIndex,
+      },
+      {
+        path: 'documents',
+        name: 'documents',
+        component: Home,
+      },
+      {
+        path: 'upload',
+        name: 'upload',
+        component: Upload,
+      },
+      {
+        path: 'signature',
+        name: 'signature',
+        component: Signature,
+      },
+      {
+        path: 'complete',
+        name: 'complete',
+        component: Complete,
+      },
+      {
+        path: 'track-document',
+        name: 'track-document',
+        component: TrackDocComponent,
+      },
+    ],
+  },
+
+  // 📄 Public page without layout or auth
+  {
+    path: '/view-document',
+    name: 'ViewDocument',
+    component: Signature,
+    props: route => ({
+      shared_document_id: route.query.shared_document_id,
+      document_pdf_id: route.query.document_pdf_id,
+      employee_id: route.query.employee_id,
+      is_employee: route.query.is_employee,
+    }),
+  },
+
+];
+
+export const router = createRouter({
+  history: createWebHistory(),
+  routes,
+});
+
+router.beforeEach(async (to, from, next) => {
+  const auth = useAuthStore();
+
+  if (auth.user === null) {
+    await auth.getUser();
+  }
+
+  if (to.name === 'login' && auth.isAuthenticated) {
+    return next({ name: 'home' });
+  }
+
+  if (to.meta.requiresAuth && !auth.isAuthenticated) {
+    return next({ name: 'login' });
+  }
+
+  next();
+});
