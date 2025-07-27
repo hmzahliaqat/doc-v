@@ -5,7 +5,10 @@ const emit = defineEmits(['closeDrawer', 'shareEmail'])
 
 
 const  {shareDocument} = usePdf();
-const props = defineProps(['employees'])
+const props = defineProps({
+  employees: Array,
+  isSharing: Boolean
+})
 
 const close = () => {
   emit('closeDrawer')

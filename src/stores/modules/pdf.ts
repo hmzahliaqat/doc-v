@@ -5,6 +5,7 @@ import { getIdb, setIdb } from '@/utils/idb';
 import type { MenuTab } from '@/types/menu';
 import type { PDF } from '@/types/pdf';
 import { usePdf } from '@/composables/pdf';
+import { useRoute } from 'vue-router';
 interface PDFStore {
   currentPDF: PDF;
   PDFList: PDF[];
@@ -12,7 +13,7 @@ interface PDFStore {
   trashList: PDF[];
 }
 
-const { getDocuments, storeDocument, updateDocument, getTrashed, deleteDocument } = usePdf();
+const { getDocuments, getDocumentById, storeDocument, updateDocument, getTrashed, deleteDocument } = usePdf();
 
 const defaultState: PDFStore = {
   currentPDF: {
@@ -35,13 +36,40 @@ export const usePdfStore = defineStore('pdf', {
   getters: {},
   actions: {
     async getCurrentPDF() {
-      // const currentPDF = await getIdb<PDF>(IDB_KEY.CURRENT_PDF);
-
-      // if (!currentPDF) return;
-      // this.currentPDF = currentPDF;
+      // Try to get from IndexedDB first for backward compatibility
+      const currentPDF = await getIdb<PDF>(IDB_KEY.CURRENT_PDF);
+      
+      if (currentPDF && currentPDF.PDFId) {
+        this.currentPDF = currentPDF;
+        return;
+      }
+      
+      // If not in IndexedDB, check if there's a document_pdf_id in the route
+      const route = useRoute();
+      const document_pdf_id = route.query?.document_pdf_id;
+      
+      if (document_pdf_id) {
+        await this.getDocumentByIdAction(String(document_pdf_id));
+      }
+    },
+    
+    async getDocumentByIdAction(id: string) {
+      try {
+        const document = await getDocumentById(id);
+        if (document) {
+          this.currentPDF = document;
+          // Also update in IndexedDB for backward compatibility
+          this.updateCurrentPDFIdb();
+        }
+        return document;
+      } catch (error) {
+        console.error('Failed to get document by ID:', error);
+        return null;
+      }
     },
     setCurrentPDF(PDF: PDF) {
       this.currentPDF = PDF;
+      this.updateCurrentPDFIdb();
     },
     clearCurrentPDF() {
       this.currentPDF = {
@@ -52,15 +80,18 @@ export const usePdfStore = defineStore('pdf', {
         pages: 0,
         canvas: [],
       };
+      this.updateCurrentPDFIdb();
     },
     setCurrentPDFName(name: string) {
       this.currentPDF.name = name;
+      this.updateCurrentPDFIdb();
     },
     setCurrentPDFCanvas(canvas: string[]) {
       this.currentPDF.canvas = canvas;
+      this.updateCurrentPDFIdb();
     },
     updateCurrentPDFIdb() {
-      // return setIdb(IDB_KEY.CURRENT_PDF, this.currentPDF);
+      return setIdb(IDB_KEY.CURRENT_PDF, this.currentPDF);
     },
 
     async getPDF() {
@@ -99,36 +130,31 @@ export const usePdfStore = defineStore('pdf', {
     },
 
     async getArchive() {
-      const archiveList = await getIdb<PDF[]>(IDB_KEY.ARCHIVE_LIST);
-
-      if (!archiveList) return;
-      this.archiveList = archiveList;
+      // API call would go here to fetch archive list
+      this.archiveList = [];
     },
     addArchive(PDF: PDF) {
       this.deletePDF(PDF.PDFId);
       this.archiveList.unshift(PDF);
-      return this.updateArchiveIdb();
+      // API call would go here to update archive
     },
     batchAddArchive(PDFList: Set<PDF>) {
       for (const PDF of PDFList) {
         this.PDFList = this.PDFList.filter(({ PDFId }) => PDF.PDFId !== PDFId);
         this.archiveList.unshift(PDF);
       }
-      return Promise.all([this.updatePDFIdb(), this.updateArchiveIdb()]);
+      // API call would go here to update archive
     },
     deleteArchive(id: string) {
       this.archiveList = this.archiveList.filter(({ PDFId }) => id !== PDFId);
-      return this.updateArchiveIdb();
+      // API call would go here to delete from archive
     },
     batchReductionArchive(PDFList: Set<PDF>) {
       for (const PDF of PDFList) {
         this.archiveList = this.archiveList.filter(({ PDFId }) => PDF.PDFId !== PDFId);
         this.PDFList.unshift(PDF);
       }
-      return Promise.all([this.updatePDFIdb(), this.updateArchiveIdb()]);
-    },
-    updateArchiveIdb() {
-      return setIdb(IDB_KEY.ARCHIVE_LIST, this.archiveList);
+      // API call would go here to update archive
     },
 
     async getTrash() {

@@ -111,7 +111,6 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
 import { useToast } from 'primevue/usetoast';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
@@ -127,7 +126,7 @@ const totalShared = ref(null);
 const totalSigned = ref(null);
 const totalPending = ref(null);
 
-const { trackDocument } = usePdf();
+const { trackDocument, remindDocument } = usePdf();
 const {PDFList} = usePdfStore();
 onMounted(async () => {
   try {
@@ -189,9 +188,9 @@ const downloadDocument = (data) => {
 };
 
 const remindUser = (data) => {
-  axios.post('/reminder', { id: data.document.id, employee: data.employee })
+  remindDocument(data.id)
     .then(res => {
-      toast.add({ severity: 'success', summary: 'Reminder Sent', detail: res.data.message || 'Reminder sent successfully.', life: 3000 });
+      toast.add({ severity: 'success', summary: 'Reminder Sent', detail: res.message || 'Reminder sent successfully.', life: 3000 });
     })
     .catch(error => {
       console.error(error);

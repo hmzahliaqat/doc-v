@@ -247,19 +247,35 @@ onAfterRouteLeave(() => {
   usePdfStore().clearCurrentPDF();
 });
 
-onBeforeMount(()=>{
-
-  if (is_employee && document_pdf_id) {
+onBeforeMount(async ()=>{
+  // If document_pdf_id is in the URL, try to load it
+  if (document_pdf_id) {
+    isLoadedFromUrl.value = true;
+    
+    // First check if it's already in the PDFList
     const matchedPDF = PDFList.value.find(pdf => String(pdf.PDFId) === String(document_pdf_id));
 
     if (matchedPDF) {
+      // If found in list, set it as current
       currentPDF.value = matchedPDF;
-      isLoadedFromUrl.value = true;
     } else {
-      console.warn('PDF not found with id:', document_pdf_id);
+      // If not found in list, try to fetch it directly from API
+      try {
+        const pdfStore = usePdfStore();
+        await pdfStore.getDocumentByIdAction(String(document_pdf_id));
+      } catch (error) {
+        console.error('Failed to load document:', error);
+      }
+    }
+  } else {
+    // If no document_pdf_id in URL, try to load from store/IndexedDB
+    try {
+      const pdfStore = usePdfStore();
+      await pdfStore.getCurrentPDF();
+    } catch (error) {
+      console.error('Failed to load current document:', error);
     }
   }
-
 })
 
 
