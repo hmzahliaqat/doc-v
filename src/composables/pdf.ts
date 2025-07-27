@@ -2,9 +2,12 @@ import type { PDF } from '@/types/pdf';
 import baseAxios from '@/base-axios';
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
+import type { Ref } from 'vue';
+import { useLoading } from '@/composables/loading';
 
 export const usePdf = () => {
   const toast = useToast();
+  const { showLoading, hideLoading } = useLoading();
 
   function getDocuments() {
     return baseAxios
@@ -85,12 +88,17 @@ export const usePdf = () => {
   }
 
   function shareDocument(data: any) {
+    // Show global loading overlay
+    showLoading('Sharing document...');
+    
     return baseAxios
       .post('/api/documents/share', data)
       .then(response => {
         toast.success('Document shared successfully.', {
           position: 'top-right',
         });
+        // Hide loading state
+        hideLoading();
         return response.data;
       })
       .catch(error => {
@@ -98,6 +106,8 @@ export const usePdf = () => {
         toast.error(message, {
           position: 'top-right',
         });
+        // Hide loading state
+        hideLoading();
         throw new Error(message);
       });
   }
@@ -150,6 +160,31 @@ export const usePdf = () => {
       });
   }
 
+  function remindDocument(id: string) {
+    // Show global loading overlay
+    showLoading('Sending reminder...');
+    
+    return baseAxios
+      .post('/api/documents/remind', { id })
+      .then(response => {
+        toast.success('Reminder sent successfully.', {
+          position: 'top-right',
+        });
+        // Hide loading state
+        hideLoading();
+        return response.data;
+      })
+      .catch(error => {
+        const message = error.response?.data?.message || 'An error occurred while sending the reminder.';
+        toast.error(message, {
+          position: 'top-right',
+        });
+        // Hide loading state
+        hideLoading();
+        throw new Error(message);
+      });
+  }
+
   return {
     getDocuments,
     getDocumentById,
@@ -159,5 +194,6 @@ export const usePdf = () => {
     trackDocument,
     getTrashed,
     deleteDocument,
+    remindDocument,
   };
 };

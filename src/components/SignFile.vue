@@ -27,6 +27,7 @@ const isSelected = ref(false);
 const router = useRouter();
 const { addPDF, addArchive, addTrash, deleteArchive, deleteTrash, setCurrentPDF } = usePdfStore();
 const  isDrawerVisible = ref(false);
+const isSharing = ref(false);
 const localTime = computed(() => {
   return transformTimestamp(file.updateDate);
 });
@@ -125,8 +126,11 @@ async function shareDocumentEmail(id){
     document_id : file.PDFId,
   }
 
-await shareDocument(data)
-
+  try {
+    await shareDocument(data);
+  } catch (error) {
+    console.error('Error sharing document:', error);
+  }
 }
 
 watch(
@@ -145,7 +149,7 @@ onMounted(async ()=>{
 
 <template>
 
-  <ShareDrawer v-if="isDrawerVisible" @close-drawer="toggleDrawer" :employees="employees" @share-email="shareDocumentEmail" />
+  <ShareDrawer v-if="isDrawerVisible" @close-drawer="toggleDrawer" :employees="employees" @share-email="shareDocumentEmail" :is-sharing="isSharing" />
 
   <li
     :class="[
