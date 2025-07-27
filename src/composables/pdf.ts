@@ -22,6 +22,23 @@ export const usePdf = () => {
         throw error;
       });
   }
+  
+  function getDocumentById(id: string) {
+    return baseAxios
+      .get(`api/documents/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      .then(response => response.data)
+      .catch(error => {
+        console.error('Error fetching document:', error);
+        toast.error('Failed to fetch document.', {
+          position: 'top-right',
+        });
+        throw error;
+      });
+  }
 
   function storeDocument(PDF: PDF) {
     return baseAxios
@@ -135,6 +152,7 @@ export const usePdf = () => {
 
   return {
     getDocuments,
+    getDocumentById,
     storeDocument,
     updateDocument,
     shareDocument,
