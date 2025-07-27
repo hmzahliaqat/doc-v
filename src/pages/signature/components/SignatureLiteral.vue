@@ -137,7 +137,7 @@ onMounted(() => {
         @click="selectLiteral(word)"
       >
         <p class="whitespace-pre-wrap w-full text-ellipsis overflow-hidden">
-          <span class="inline">{{ word }}</span>
+          <span class="inline">{{ word.file_path }}</span>
           <sign-icon
             v-show="currentSelect?.id === word.id"
             name="edit"

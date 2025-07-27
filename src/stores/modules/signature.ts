@@ -23,19 +23,19 @@ export const useSignatureStore = defineStore('signature', {
   state: () => ({ ...defaultState }),
   actions: {
   async getSignature(employeeId?: string){
-    // const sign = await getPartials(employeeId, 'signature');
-    // this.signatureList = sign;
+    const sign = await getPartials(employeeId, 'signature');
+    this.signatureList = sign;
   },
    async addSignature(signature: string) {
-    // const  sign = await storePartial(signature, 'signature');
-      this.signatureList.unshift(signature);
+    const  sign = await storePartial(signature, 'signature');
+      this.signatureList.unshift(sign);
     },
     deleteSignature(signature: string) {
-      // this.signatureList = this.signatureList.filter(sign => sign !== signature);
+      this.signatureList = this.signatureList.filter(sign => sign !== signature);
     },
   },
-  persist: {
-    storage: localStorage,
-    pick: ['signatureList'],
-  },
+  // persist: {
+  //   storage: localStorage,
+  //   pick: ['signatureList'],
+  // },
 });

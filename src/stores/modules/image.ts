@@ -26,21 +26,21 @@ export const useImageStore = defineStore('image', {
   actions: {
 
    async getImage(employeeId?: string){
-     // const images = await getPartials(employeeId, 'image');
-     //  this.imageList= images;
+     const images = await getPartials(employeeId, 'image');
+      this.imageList= images;
 
     },
 
    async addImage(image: string) {
-    // const  img = await storePartial(image, 'image');
-      this.imageList.unshift(image);
+    const  img = await storePartial(image, 'image');
+      this.imageList.unshift(img);
     },
     deleteImage(image: string) {
-      // this.imageList = this.imageList.filter(img => img !== image);
+      this.imageList = this.imageList.filter(img => img !== image);
     },
   },
-  persist: {
-    storage: localStorage,
-    pick: ['imageList'],
-  },
+  // persist: {
+  //   storage: localStorage,
+  //   pick: ['imageList'],
+  // },
 });

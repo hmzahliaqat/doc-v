@@ -23,19 +23,19 @@ export const useLiteralStore = defineStore('literal', {
   state: () => ({ ...defaultState }),
   actions: {
    async getLiteral(employeeId?: string){
-    // const txt = await getPartials(employeeId, 'literal');
-    //  this.literalList = txt;
+    const txt = await getPartials(employeeId, 'literal');
+     this.literalList = txt;
    },
    async addLiteral(text: string) {
-   // const txt = await storePartial(text, 'literal');
-     this.literalList.unshift(text);
+   const txt = await storePartial(text, 'literal');
+     this.literalList.unshift(txt);
     },
     deleteLiteral(text: string) {
-      // this.literalList = this.literalList.filter(literal => literal !== text);
+      this.literalList = this.literalList.filter(literal => literal !== text);
     },
   },
-  persist: {
-    storage: localStorage,
-    pick: ['literalList'],
-  },
+  // persist: {
+  //   storage: localStorage,
+  //   pick: ['literalList'],
+  // },
 });

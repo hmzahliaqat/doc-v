@@ -94,7 +94,7 @@ onMounted(async () => {
         @click="selectSignature(signature)"
       >
         <img
-          :src="signature"
+          :src="signature.file_path"
           alt="signature icon"
           class="object-contain rounded-[20px]"
           @dragstart="dragSignature"

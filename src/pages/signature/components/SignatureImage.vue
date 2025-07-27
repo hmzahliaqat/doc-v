@@ -128,7 +128,7 @@ onMounted(() => {
         @click="selectImage(image)"
       >
         <img
-          :src="image"
+          :src="image.file_path"
           alt="image"
           class="object-cover rounded-[20px]"
           @dragstart="dragImage"
