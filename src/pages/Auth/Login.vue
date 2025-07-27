@@ -1,24 +1,41 @@
 <script setup>
 import { ref } from 'vue';
-import { useUserApi } from '@/composables/user';
+import { useAuthStore } from '@/stores/modules/user';
 import { useRouter } from 'vue-router';
+
 const router = useRouter();
-const { login } = useUserApi();
+const authStore = useAuthStore();
 const email = ref('');
 const password = ref('');
+const errorMessage = ref('');
+const isLoading = ref(false);
 
-const submit = () =>{
+const submit = async () => {
+  if (!email.value || !password.value) {
+    errorMessage.value = 'Please enter both email and password';
+    return;
+  }
 
-login(email.value, password.value)
-  .then((response) => {
-    console.log('Login successful:', response);
+  try {
+    isLoading.value = true;
+    errorMessage.value = '';
+    await authStore.loginUser(email.value, password.value);
     router.push({ name: 'home' });
-  })
-  .catch((error) => {
+  } catch (error) {
     console.error('Login failed:', error);
-  });
+    errorMessage.value = 'Invalid credentials. Please try again.';
+  } finally {
+    isLoading.value = false;
+  }
+};
 
-}
+const goToRegister = () => {
+  router.push({ name: 'register' });
+};
+
+const goToForgotPassword = () => {
+  router.push({ name: 'forgot-password' });
+};
 </script>
 
 <template>
@@ -29,7 +46,11 @@ login(email.value, password.value)
   </div>
 
   <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-    <form class="space-y-6" action="#" method="POST">
+    <form class="space-y-6" @submit.prevent="submit">
+      <div v-if="errorMessage" class="rounded-md bg-red-50 p-4 mb-4">
+        <div class="text-sm text-red-700">{{ errorMessage }}</div>
+      </div>
+      
       <div>
         <label for="email" class="block text-sm/6 font-medium text-gray-900">Email address</label>
         <div class="mt-2">
@@ -41,7 +62,7 @@ login(email.value, password.value)
         <div class="flex items-center justify-between">
           <label for="password" class="block text-sm/6 font-medium text-gray-900">Password</label>
           <div class="text-sm">
-            <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-500">Forgot password?</a>
+            <a @click="goToForgotPassword" class="font-semibold text-indigo-600 hover:text-indigo-500 cursor-pointer">Forgot password?</a>
           </div>
         </div>
         <div class="mt-2">
@@ -50,18 +71,17 @@ login(email.value, password.value)
       </div>
 
       <div>
-        <button @click="submit()"  type="button" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign in</button>
+        <button type="submit" :disabled="isLoading" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
+          <span v-if="isLoading">Processing...</span>
+          <span v-else>Sign in</span>
+        </button>
       </div>
     </form>
 
     <p class="mt-10 text-center text-sm/6 text-gray-500">
       Not a member?
-      <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-500">Register</a>
+      <a @click="goToRegister" class="font-semibold text-indigo-600 hover:text-indigo-500 cursor-pointer">Register</a>
     </p>
   </div>
 </div>
-
-
-
-
 </template>

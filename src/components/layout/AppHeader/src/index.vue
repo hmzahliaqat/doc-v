@@ -10,7 +10,11 @@ const router = useRouter();
 const logoutUser = async () => {
   await authStore.logoutUser();
   await nextTick(); // ensure reactivity is updated
-  router.push({ name: 'login' });
+  
+  // Add a small delay to ensure all state changes are processed
+  setTimeout(() => {
+    router.push('/'); // Redirect to root path instead of login
+  }, 100);
 };
 
 const dropdownOpen = ref(false);
@@ -95,9 +99,8 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
               </button>
 
               <div v-if="dropdownOpen" class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                <a href="#" class="block px-4 py-2 text-sm text-gray-700">Your Profile</a>
-                <a href="#" class="block px-4 py-2 text-sm text-gray-700">Settings</a>
-                <a @click="logoutUser" class="block cursor-pointer px-4 py-2 text-sm text-gray-700">Sign out</a>
+                <router-link to="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Your Profile</router-link>
+                <a @click="logoutUser" class="block cursor-pointer px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Sign out</a>
               </div>
             </div>
           </div>

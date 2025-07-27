@@ -7,6 +7,11 @@ import AuthLayout from '@/layouts/AuthLayout.vue';
 // Pages
 import LandingPage from '@/pages/LandingPage.vue';
 import Login from '@/pages/Auth/Login.vue';
+import Register from '@/pages/Auth/Register.vue';
+import ForgotPassword from '@/pages/Auth/ForgotPassword.vue';
+import ResetPassword from '@/pages/Auth/ResetPassword.vue';
+import VerifyEmail from '@/pages/Auth/VerifyEmail.vue';
+import Profile from '@/pages/Auth/Profile.vue';
 import Index from '@/pages/Dashboard/Index.vue';
 import Home from '@/pages/home/index.vue';
 import Signature from '@/pages/signature/index.vue';
@@ -41,6 +46,49 @@ const routes: Array<RouteRecordRaw> = [
         component: Login,
         meta: { requiresAuth: false },
       },
+      {
+        path: 'register',
+        name: 'register',
+        component: Register,
+        meta: { requiresAuth: false },
+      },
+      {
+        path: 'forgot-password',
+        name: 'forgot-password',
+        component: ForgotPassword,
+        meta: { requiresAuth: false },
+      },
+      {
+        path: 'reset-password',
+        name: 'reset-password',
+        component: ResetPassword,
+        meta: { requiresAuth: false },
+      },
+      {
+        path: 'password-reset/:token',
+        redirect: to => {
+          return { 
+            name: 'reset-password', 
+            query: { 
+              token: to.params.token, 
+              email: to.query.email 
+            } 
+          };
+        },
+        meta: { requiresAuth: false },
+      },
+      {
+        path: 'email/verify/:id/:hash',
+        name: 'verification.verify',
+        component: VerifyEmail,
+        meta: { requiresAuth: false },
+      },
+      {
+        path: 'email/verify',
+        name: 'verification.notice',
+        component: VerifyEmail,
+        meta: { requiresAuth: true },
+      },
     ],
   },
 
@@ -54,6 +102,11 @@ const routes: Array<RouteRecordRaw> = [
         path: 'dashboard',
         name: 'home',
         component: Index,
+      },
+      {
+        path: 'profile',
+        name: 'profile',
+        component: Profile,
       },
       {
         path: 'employees',
