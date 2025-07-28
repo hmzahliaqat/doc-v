@@ -9,8 +9,9 @@ const router = useRouter();
 
 const logoutUser = async () => {
   await authStore.logoutUser();
-  await nextTick(); // ensure reactivity is updated
-  
+
+  window.location.reload();
+
   // Add a small delay to ensure all state changes are processed
   setTimeout(() => {
     router.push('/'); // Redirect to root path instead of login

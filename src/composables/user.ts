@@ -3,15 +3,18 @@ import baseAxios from '@/base-axios';
 import axiosInstance from '@/axios-instance';
 import { useRouter } from 'vue-router';
 import { sleep } from '@/utils/common';
-
+import { useAuthStore } from '@/stores/modules/user.ts';
 export const useUserApi = () => {
   const router = useRouter(); 
-
+  const authStore = useAuthStore();
   async function getUser() {
     try {
       const response = await axiosInstance.get(`user`);
       return response.data;
-    } catch (error) {
+    } catch (error: any) {
+      if(error?.response?.status == 401){
+       authStore.user = null;
+      }
       console.error('Failed to get user:', error);
       throw error;
     }
