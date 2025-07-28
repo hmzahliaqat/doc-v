@@ -77,6 +77,16 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
                   'rounded-md px-3 py-2 text-sm font-medium'
                 ]">Track</a>
               </router-link>
+
+
+              <router-link v-if="authStore.role == 'super-admin'" to="/track-document">
+                <a :class="[
+                  currentRoute === 'track-document'
+                    ? 'bg-gray-900 text-white'
+                    : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                  'rounded-md px-3 py-2 text-sm font-medium'
+                ]">Plans</a>
+              </router-link>
             </div>
           </div>
         </div>
