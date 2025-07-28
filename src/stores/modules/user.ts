@@ -2,7 +2,12 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useUserApi } from '@/composables/user';
 export const useAuthStore = defineStore('auth', () => {
+  // Initialize role from localStorage if available
+  const storedRole = localStorage.getItem('user_role');
+  
   const user = ref(null as null | { name: string; email: string; email_verified_at?: string });
+  const role = ref(storedRole as null | string);
+  const isLoading = ref(false);
   const verificationEmailSent = ref(false);
   const passwordResetEmailSent = ref(false);
   const passwordResetSuccess = ref(false);
@@ -36,8 +41,14 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function loginUser(email: string, password: string) {
-    await login(email, password);
-    await getUser();
+    isLoading.value = true;
+    try {
+      await login(email, password);
+      await getUser();
+      await getUserRole();
+    } finally {
+      isLoading.value = false;
+    }
   }
 
   async function registerUser(name: string, email: string, password: string, password_confirmation: string) {
@@ -80,6 +91,8 @@ export const useAuthStore = defineStore('auth', () => {
   async function logoutUser() {
     await logout();
     user.value = null;
+    role.value = null;
+    localStorage.removeItem('user_role');
   }
 
   function resetFlags() {
@@ -90,9 +103,35 @@ export const useAuthStore = defineStore('auth', () => {
     profileUpdateSuccess.value = false;
     passwordUpdateSuccess.value = false;
   }
+  
+  async function getUserRole() {
+    try {
+      isLoading.value = true;
+      const response = await useUserApi().getUserRole();
+      role.value = response.role;
+      
+      // Save role to localStorage for persistence
+      if (response.role) {
+        localStorage.setItem('user_role', response.role);
+      } else {
+        localStorage.removeItem('user_role');
+      }
+      
+      return response.role;
+    } catch (error) {
+      console.error('Failed to get user role:', error);
+      role.value = null;
+      localStorage.removeItem('user_role');
+      throw error;
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
   return {
     user,
+    role,
+    isLoading,
     isAuthenticated,
     isVerified,
     verificationEmailSent,
@@ -102,6 +141,7 @@ export const useAuthStore = defineStore('auth', () => {
     profileUpdateSuccess,
     passwordUpdateSuccess,
     getUser,
+    getUserRole,
     loginUser,
     registerUser,
     forgotPasswordRequest,

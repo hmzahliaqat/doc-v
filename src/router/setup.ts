@@ -19,6 +19,7 @@ import Upload from '@/pages/upload/index.vue';
 import Complete from '@/pages/complete/index.vue';
 import EmployeeIndex from '@/pages/Employees/EmployeeIndex.vue';
 import TrackDocComponent from '@/pages/TrackDocument/TrackDocComponent.vue';
+import SuperAdminDashboard from '@/pages/SuperAdmin/superadmindashboard.vue';
 
 // Store
 import { useAuthStore } from '@/stores/modules/user';
@@ -104,6 +105,11 @@ const routes: Array<RouteRecordRaw> = [
         component: Index,
       },
       {
+        path: 'superadmindashboard',
+        name: 'superadmindashboard',
+        component: SuperAdminDashboard,
+      },
+      {
         path: 'profile',
         name: 'profile',
         component: Profile,
@@ -166,9 +172,22 @@ router.beforeEach(async (to, from, next) => {
 
   if (auth.user === null) {
     await auth.getUser();
+    
+    // If user is authenticated but role is not fetched yet, fetch it
+    if (auth.isAuthenticated && auth.role === null) {
+      try {
+        await auth.getUserRole();
+      } catch (error) {
+        console.error('Failed to fetch user role:', error);
+      }
+    }
   }
 
   if (to.name === 'login' && auth.isAuthenticated) {
+    // If user is super-admin, redirect to superadmin dashboard
+    if (auth.role === 'super-admin') {
+      return next({ name: 'superadmindashboard' });
+    }
     return next({ name: 'home' });
   }
 

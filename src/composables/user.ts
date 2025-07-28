@@ -15,8 +15,6 @@ export const useUserApi = () => {
       if(error?.response?.status == 401){
        authStore.user = null;
       }
-      console.error('Failed to get user:', error);
-      throw error;
     }
   }
 
@@ -144,6 +142,16 @@ export const useUserApi = () => {
       throw error;
     }
   }
+  
+  async function getUserRole() {
+    try {
+      const response = await baseAxios.get(`/api/user/role`);
+      return response.data;
+    } catch (error) {
+      console.error('Get user role failed:', error);
+      throw error;
+    }
+  }
 
   return {
     getUser,
@@ -156,5 +164,6 @@ export const useUserApi = () => {
     updateProfile,
     updatePassword,
     logout,
+    getUserRole,
   };
 };

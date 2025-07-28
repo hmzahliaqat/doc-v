@@ -51,7 +51,7 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
                 ]">Dashboard</a>
               </router-link>
 
-              <router-link to="/employees">
+              <router-link v-if="authStore.role !== 'super-admin'" to="/employees">
                 <a :class="[
                   currentRoute === 'employees'
                     ? 'bg-gray-900 text-white'
@@ -60,7 +60,7 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
                 ]">Employees</a>
               </router-link>
 
-              <router-link to="/documents">
+              <router-link v-if="authStore.role !== 'super-admin'" to="/documents">
                 <a :class="[
                   currentRoute === 'documents'
                     ? 'bg-gray-900 text-white'
@@ -69,7 +69,7 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
                 ]">Documents</a>
               </router-link>
 
-              <router-link to="/track-document">
+              <router-link v-if="authStore.role !== 'super-admin'" to="/track-document">
                 <a :class="[
                   currentRoute === 'track-document'
                     ? 'bg-gray-900 text-white'
@@ -94,9 +94,14 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
 
             <!-- Profile Dropdown -->
             <div class="relative ml-3" v-click-outside="closeDropdown">
-              <button @click="toggleDropdown" type="button" class="relative flex max-w-xs items-center rounded-full bg-gray-800 text-sm text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
-                <span class="sr-only">Open user menu</span>
-                <img class="h-8 w-8 rounded-full" src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80" alt="">
+              <button @click="toggleDropdown" type="button" class="relative flex items-center  rounded-md px-3 py-2 text-sm text-white focus:outline-none cursor-pointer">
+                <div class="flex flex-col">
+                  <span class="font-medium">{{ authStore.user?.name || 'User' }}</span>
+                  <span class="text-xs text-gray-300">{{ authStore.user?.email || 'No email' }}</span>
+                </div>
+                <svg class="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
               </button>
 
               <div v-if="dropdownOpen" class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
