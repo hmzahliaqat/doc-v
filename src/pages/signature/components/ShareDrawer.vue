@@ -68,28 +68,28 @@ const  isShared = (employee) =>{
                       </div>
                     </div>
 
-                    <button
+<!--                    <button-->
 
-                      :class="[
-                        'inline-flex items-center space-x-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',
-                        allShared
-                          ? 'bg-green-500 text-white cursor-not-allowed'
-                          : 'bg-white/20 text-white hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50'
-                      ]"
-                    >
-                      <template v-if="allShared">
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                        </svg>
-                        <span>All Shared</span>
-                      </template>
-                      <template v-else>
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
-                        </svg>
-                        <span>Share All</span>
-                      </template>
-                    </button>
+<!--                      :class="[-->
+<!--                        'inline-flex items-center space-x-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-200',-->
+<!--                        allShared-->
+<!--                          ? 'bg-green-500 text-white cursor-not-allowed'-->
+<!--                          : 'bg-white/20 text-white hover:bg-white/30 focus:outline-none focus:ring-2 focus:ring-white/50'-->
+<!--                      ]"-->
+<!--                    >-->
+<!--                      <template v-if="allShared">-->
+<!--                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">-->
+<!--                          <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />-->
+<!--                        </svg>-->
+<!--                        <span>All Shared</span>-->
+<!--                      </template>-->
+<!--                      <template v-else>-->
+<!--                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">-->
+<!--                          <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />-->
+<!--                        </svg>-->
+<!--                        <span>Share All</span>-->
+<!--                      </template>-->
+<!--                    </button>-->
                   </div>
                 </div>
 

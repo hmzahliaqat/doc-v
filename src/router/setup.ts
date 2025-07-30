@@ -20,7 +20,7 @@ import Complete from '@/pages/complete/index.vue';
 import EmployeeIndex from '@/pages/Employees/EmployeeIndex.vue';
 import TrackDocComponent from '@/pages/TrackDocument/TrackDocComponent.vue';
 import SuperAdminDashboard from '@/pages/SuperAdmin/superadmindashboard.vue';
-
+import CompanyOverview from '@/pages/SuperAdmin/Pages/CompanyOverview.vue';
 // Store
 import { useAuthStore } from '@/stores/modules/user';
 
@@ -110,6 +110,11 @@ const routes: Array<RouteRecordRaw> = [
         component: SuperAdminDashboard,
       },
       {
+        path: '/company-overview',
+        name: 'company-overview',
+        component: CompanyOverview,
+      },
+      {
         path: 'profile',
         name: 'profile',
         component: Profile,
@@ -183,11 +188,13 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
+
+  if (auth.isAuthenticated && auth.role === 'super-admin' && 
+      (to.name === 'login' || to.name === 'home' || to.name === 'dashboard')) {
+    return next({ name: 'superadmindashboard' });
+  }
+
   if (to.name === 'login' && auth.isAuthenticated) {
-    // If user is super-admin, redirect to superadmin dashboard
-    if (auth.role === 'super-admin') {
-      return next({ name: 'superadmindashboard' });
-    }
     return next({ name: 'home' });
   }
 
