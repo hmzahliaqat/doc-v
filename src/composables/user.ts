@@ -117,7 +117,7 @@ export const useUserApi = () => {
     }
   }
 
-  async function updatePassword(current_password: string, password: string, password_confirmation: string) {
+  async function updatePassword(current_password: string, password: string, password_confirmation: string, email: string ) {
     try {
       await baseAxios.get(`/sanctum/csrf-cookie`);
       sleep(1000);
@@ -125,6 +125,7 @@ export const useUserApi = () => {
         current_password,
         password,
         password_confirmation,
+        email
       });
       return response.data;
     } catch (error) {

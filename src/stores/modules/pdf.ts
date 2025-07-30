@@ -46,7 +46,7 @@ export const usePdfStore = defineStore('pdf', {
       
       // If not in IndexedDB, check if there's a document_pdf_id in the route
       const route = useRoute();
-      const document_pdf_id = route.query?.document_pdf_id;
+      const document_pdf_id = route?.query?.document_pdf_id;
       
       if (document_pdf_id) {
         await this.getDocumentByIdAction(String(document_pdf_id));

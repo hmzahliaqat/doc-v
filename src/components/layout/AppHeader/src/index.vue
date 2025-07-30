@@ -2,9 +2,11 @@
 import { ref, nextTick } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/modules/user.js";
+import { useConfigStore } from "@/stores";
 const props = defineProps(['currentRoute']);
 
 const authStore = useAuthStore();
+const configStore = useConfigStore();
 const router = useRouter();
 
 const logoutUser = async () => {
@@ -47,7 +49,7 @@ const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
         <!-- Logo + Nav Links -->
         <div class="flex items-center">
           <div class="flex-shrink-0">
-            <img class="h-12 w-40" src="/logo.svg" alt="eSignature" />
+            <img class="h-12 w-40" :src="configStore.logos.header" alt="eSignature" />
           </div>
           <div class="hidden md:block">
             <div class="ml-10 flex items-baseline space-x-4">

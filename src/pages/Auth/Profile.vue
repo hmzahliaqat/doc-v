@@ -1,10 +1,12 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/modules/user';
+import { useConfigStore } from '@/stores';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const configStore = useConfigStore();
 
 // Profile update
 const name = ref('');
@@ -86,7 +88,8 @@ const updatePassword = async () => {
     await authStore.updateUserPassword(
       currentPassword.value,
       newPassword.value,
-      newPasswordConfirmation.value
+      newPasswordConfirmation.value,
+      authStore.user.email,
     );
     
     if (authStore.passwordUpdateSuccess) {
@@ -125,7 +128,7 @@ const goToDashboard = () => {
 <template>
 <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
   <div class="sm:mx-auto sm:w-full sm:max-w-md">
-    <img class="mx-auto h-20 w-auto" src="/logo.svg" alt="Your Company" />
+    <img class="mx-auto h-20 w-auto" :src="configStore.logos.auth" alt="Your Company" />
     <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Profile Settings</h2>
   </div>
 
@@ -176,7 +179,7 @@ const goToDashboard = () => {
         <div>
           <label for="email" class="block text-sm/6 font-medium text-gray-900">Email address</label>
           <div class="mt-2">
-            <input v-model="email" type="email" name="email" id="email" autocomplete="email" required 
+            <input disabled v-model="email" type="email" name="email" id="email" autocomplete="email" required
               class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
           </div>
         </div>

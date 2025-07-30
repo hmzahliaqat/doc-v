@@ -44,18 +44,18 @@ onMounted(async () => {
             <div
               class="flex flex-none items-center justify-center gap-2 rounded-sm px-2 sm:justify-end sm:bg-transparent sm:px-0"
             >
-              <a
-                href="javascript:void(0)"
-                class="inline-flex items-center justify-center gap-1 rounded-lg border border-violet-700 bg-violet-700 px-3 py-2 text-sm leading-5 font-semibold text-white hover:border-violet-600 hover:bg-violet-600 hover:text-white focus:ring-3 focus:ring-violet-400/50 active:border-violet-700 active:bg-violet-700"
-              >
-                <span>New request</span>
-              </a>
-              <a
-                href="javascript:void(0)"
-                class="inline-flex items-center justify-center gap-1 rounded-lg border border-violet-700 bg-violet-700 px-3 py-2 text-sm leading-5 font-semibold text-white hover:border-violet-600 hover:bg-violet-600 hover:text-white focus:ring-3 focus:ring-violet-400/50 active:border-violet-700 active:bg-violet-700"
-              >
-                <span>New transfer</span>
-              </a>
+<!--              <a-->
+<!--                href="javascript:void(0)"-->
+<!--                class="inline-flex items-center justify-center gap-1 rounded-lg border border-violet-700 bg-violet-700 px-3 py-2 text-sm leading-5 font-semibold text-white hover:border-violet-600 hover:bg-violet-600 hover:text-white focus:ring-3 focus:ring-violet-400/50 active:border-violet-700 active:bg-violet-700"-->
+<!--              >-->
+<!--                <span>New request</span>-->
+<!--              </a>-->
+<!--              <a-->
+<!--                href="javascript:void(0)"-->
+<!--                class="inline-flex items-center justify-center gap-1 rounded-lg border border-violet-700 bg-violet-700 px-3 py-2 text-sm leading-5 font-semibold text-white hover:border-violet-600 hover:bg-violet-600 hover:text-white focus:ring-3 focus:ring-violet-400/50 active:border-violet-700 active:bg-violet-700"-->
+<!--              >-->
+<!--                <span>New transfer</span>-->
+<!--              </a>-->
             </div>
           </div>
           <hr class="mt-6 border-slate-200 lg:mt-8" />
@@ -411,7 +411,7 @@ onMounted(async () => {
 
                     <!-- Table Body -->
                     <tbody>
-                    <tr v-for="log in Stats.logs" class="border-b border-slate-100">
+                    <tr v-for="log in Stats?.logs" class="border-b border-slate-100">
                       <td class="py-3 pe-3 text-start text-slate-600">
                         {{ log?.user.name }}
                       </td>

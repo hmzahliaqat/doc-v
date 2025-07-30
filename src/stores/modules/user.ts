@@ -83,8 +83,8 @@ export const useAuthStore = defineStore('auth', () => {
     await getUser();
   }
 
-  async function updateUserPassword(current_password: string, password: string, password_confirmation: string) {
-    await updatePassword(current_password, password, password_confirmation);
+  async function updateUserPassword(current_password: string, password: string, password_confirmation: string, email: string) {
+    await updatePassword(current_password, password, password_confirmation, email);
     passwordUpdateSuccess.value = true;
   }
 

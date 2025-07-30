@@ -1,10 +1,12 @@
 <script setup>
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/modules/user';
+import { useConfigStore } from '@/stores';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const configStore = useConfigStore();
 const email = ref('');
 const errorMessage = ref('');
 const successMessage = ref('');
@@ -43,7 +45,7 @@ const goToLogin = () => {
 <template>
 <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
   <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-    <img class="mx-auto h-20 w-auto" src="/logo.svg" alt="Your Company" />
+    <img class="mx-auto h-20 w-auto" :src="configStore.logos.auth" alt="Your Company" />
     <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-gray-900">Forgot your password?</h2>
     <p class="mt-2 text-center text-sm text-gray-600">
       Enter your email address and we'll send you a link to reset your password.

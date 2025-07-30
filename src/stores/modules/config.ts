@@ -5,6 +5,10 @@ import type { Loading } from '@/types/config';
 interface ConfigStore {
   loading: Loading;
   filePassword: string;
+  logos: {
+    header: string;
+    auth: string;
+  };
 }
 
 const defaultState: ConfigStore = {
@@ -16,6 +20,10 @@ const defaultState: ConfigStore = {
     completeness: 0,
   },
   filePassword: '',
+  logos: {
+    header: '/logo-dark.png',
+    auth: '/logo-dark.png',
+  },
 };
 
 export const useConfigStore = defineStore('config', {
@@ -35,6 +43,9 @@ export const useConfigStore = defineStore('config', {
     },
     updateFilePassword(password: string) {
       this.filePassword = password;
+    },
+    updateLogos(logos: Partial<ConfigStore['logos']>) {
+      this.logos = { ...this.logos, ...logos };
     },
   },
 });
