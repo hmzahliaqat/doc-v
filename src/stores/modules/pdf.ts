@@ -37,9 +37,9 @@ export const usePdfStore = defineStore('pdf', {
   actions: {
     async getCurrentPDF() {
       // Try to get from IndexedDB first for backward compatibility
-      const currentPDF = await getIdb<PDF>(IDB_KEY.CURRENT_PDF);
+      const currentPDF = null;
       
-      if (currentPDF && currentPDF.PDFId) {
+      if (currentPDF && currentPDF?.PDFId) {
         this.currentPDF = currentPDF;
         return;
       }
@@ -49,7 +49,7 @@ export const usePdfStore = defineStore('pdf', {
       const document_pdf_id = route?.query?.document_pdf_id;
       
       if (document_pdf_id) {
-        await this.getDocumentByIdAction(String(document_pdf_id));
+       this.currentPDF = await this.getDocumentByIdAction(String(document_pdf_id));
       }
     },
     
@@ -57,9 +57,16 @@ export const usePdfStore = defineStore('pdf', {
       try {
         const document = await getDocumentById(id);
         if (document) {
-          this.currentPDF = document;
-          // Also update in IndexedDB for backward compatibility
-          this.updateCurrentPDFIdb();
+          // Map API response fields to the expected PDF format
+          this.currentPDF = {
+            PDFId: document.pdf_id || '',
+            name: document.name || '',
+            updateDate: document.update_date || 0,
+            PDFBase64: document.file_path || '',
+            pages: document.pages || 0,
+            canvas: document.canvas || [],
+            isUpdate: false,
+          };
         }
         return document;
       } catch (error) {

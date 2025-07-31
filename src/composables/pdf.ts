@@ -28,7 +28,7 @@ export const usePdf = () => {
   
   function getDocumentById(id: string) {
     return baseAxios
-      .get(`api/documents/${id}`, {
+      .get(`api/documents/external/${id}`, {
         headers: {
           'Content-Type': 'application/json',
         },
