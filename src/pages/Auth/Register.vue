@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import { useAuthStore } from '@/stores/modules/user';
 import { useConfigStore } from '@/stores';
 import { useRouter } from 'vue-router';
@@ -12,6 +12,7 @@ const email = ref('');
 const password = ref('');
 const passwordConfirmation = ref('');
 const errorMessage = ref('');
+const fieldErrors = reactive({});
 const isLoading = ref(false);
 
 const submit = async () => {
@@ -28,6 +29,9 @@ const submit = async () => {
   try {
     isLoading.value = true;
     errorMessage.value = '';
+    // Clear any previous field errors
+    Object.keys(fieldErrors).forEach(key => delete fieldErrors[key]);
+    
     await authStore.registerUser(name.value, email.value, password.value, passwordConfirmation.value);
     
     // If registration was successful, redirect to login or verification page
@@ -35,8 +39,20 @@ const submit = async () => {
       router.push({ name: 'login' });
     }
   } catch (error) {
-    console.error('Registration failed:', error);
-    errorMessage.value = 'Registration failed. Please check your information and try again.';
+    console.error('Registration failed1:', error);
+
+    // Check if the error has a structured response
+    if (error?.response?.data) {
+      const  message = error.response.data.message;
+      
+      // Set the main error message
+      errorMessage.value = message || 'Registration failed. Please check your information and try again.';
+      
+
+    } else {
+      // Fallback to generic error message
+      errorMessage.value = 'Registration failed. Please check your information and try again.';
+    }
   } finally {
     isLoading.value = false;
   }
@@ -64,7 +80,9 @@ const goToLogin = () => {
         <label for="name" class="block text-sm/6 font-medium text-gray-900">Full name</label>
         <div class="mt-2">
           <input v-model="name" type="text" name="name" id="name" autocomplete="name" required 
-            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+            :class="{ 'border-red-500': fieldErrors.name }" />
+          <p v-if="fieldErrors.name" class="mt-1 text-sm text-red-600">{{ fieldErrors.name }}</p>
         </div>
       </div>
 
@@ -72,7 +90,9 @@ const goToLogin = () => {
         <label for="email" class="block text-sm/6 font-medium text-gray-900">Email address</label>
         <div class="mt-2">
           <input v-model="email" type="email" name="email" id="email" autocomplete="email" required 
-            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+            :class="{ 'border-red-500': fieldErrors.email }" />
+          <p v-if="fieldErrors.email" class="mt-1 text-sm text-red-600">{{ fieldErrors.email }}</p>
         </div>
       </div>
 
@@ -80,7 +100,9 @@ const goToLogin = () => {
         <label for="password" class="block text-sm/6 font-medium text-gray-900">Password</label>
         <div class="mt-2">
           <input v-model="password" type="password" name="password" id="password" autocomplete="new-password" required 
-            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+            :class="{ 'border-red-500': fieldErrors.password }" />
+          <p v-if="fieldErrors.password" class="mt-1 text-sm text-red-600">{{ fieldErrors.password }}</p>
         </div>
       </div>
 
@@ -88,7 +110,9 @@ const goToLogin = () => {
         <label for="password_confirmation" class="block text-sm/6 font-medium text-gray-900">Confirm Password</label>
         <div class="mt-2">
           <input v-model="passwordConfirmation" type="password" name="password_confirmation" id="password_confirmation" autocomplete="new-password" required 
-            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+            :class="{ 'border-red-500': fieldErrors.password_confirmation }" />
+          <p v-if="fieldErrors.password_confirmation" class="mt-1 text-sm text-red-600">{{ fieldErrors.password_confirmation }}</p>
         </div>
       </div>
 

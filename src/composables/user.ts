@@ -18,26 +18,52 @@ export const useUserApi = () => {
     }
   }
 
+  // Helper function to check if CSRF token is set
+  function isCsrfTokenSet(): boolean {
+    const token = getCsrfToken();
+    return token !== null;
+  }
+
+// Modified login function with dynamic wait for CSRF token
   async function login(email: string, password: string) {
     try {
+      // First, fetch the CSRF token and wait until it's set
       await baseAxios.get(`/sanctum/csrf-cookie`);
-      sleep(1000); 
-      const response = await baseAxios.post(`login`, {
-        email,
-        password,
-      });
-        
+
+      // Wait for the CSRF token to be set dynamically
+      while (!isCsrfTokenSet()) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      // Now that the CSRF token is set, proceed with the login request
+      const response = await baseAxios.post(`login`, { email, password });
+
       return response.data;
-    } catch (error :any) {
+    } catch (error: any) {
       console.error('Login failed:', error.response?.data || error.message);
       throw error;
     }
   }
 
+// Helper function to extract CSRF token from cookie
+  function getCsrfToken(): string | null {
+    const name = 'XSRF-TOKEN';
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+      const token = parts.pop()?.split(';').shift();
+      return token ? decodeURIComponent(token) : null;
+    }
+    return null;
+  }
+
+
   async function register(name: string, email: string, password: string, password_confirmation: string) {
     try {
       await baseAxios.get(`/sanctum/csrf-cookie`);
-      sleep(1000);
+      while (!isCsrfTokenSet()) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
       const response = await baseAxios.post(`register`, {
         name,
         email,

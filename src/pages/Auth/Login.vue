@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, reactive } from 'vue';
 import { useAuthStore } from '@/stores/modules/user';
 import { useConfigStore } from '@/stores';
 import { useRouter } from 'vue-router';
@@ -10,6 +10,7 @@ const configStore = useConfigStore();
 const email = ref('');
 const password = ref('');
 const errorMessage = ref('');
+const fieldErrors = reactive({});
 const isLoading = ref(false);
 
 const submit = async () => {
@@ -21,11 +22,31 @@ const submit = async () => {
   try {
     isLoading.value = true;
     errorMessage.value = '';
+    // Clear any previous field errors
+    Object.keys(fieldErrors).forEach(key => delete fieldErrors[key]);
+    
     await authStore.loginUser(email.value, password.value);
     router.push({ name: 'home' });
   } catch (error) {
     console.error('Login failed:', error);
-    errorMessage.value = 'Invalid credentials. Please try again.';
+    
+    // Check if the error has a structured response
+    if (error.response && error.response.data) {
+      const { message, errors } = error.response.data;
+      
+      // Set the main error message
+      errorMessage.value = message || 'Login failed. Please try again.';
+      
+      // Set field-specific errors if available
+      if (errors) {
+        Object.keys(errors).forEach(field => {
+          fieldErrors[field] = errors[field][0];
+        });
+      }
+    } else {
+      // Fallback to generic error message
+      errorMessage.value = 'Invalid credentials. Please try again.';
+    }
   } finally {
     isLoading.value = false;
   }
@@ -68,7 +89,10 @@ const goToForgotPassword = () => {
           </div>
         </div>
         <div class="mt-2">
-          <input v-model="password" type="password" name="password" id="password" autocomplete="current-password" required class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6" />
+          <input v-model="password" type="password" name="password" id="password" autocomplete="current-password" required 
+            class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+            :class="{ 'border-red-500': fieldErrors.password }" />
+          <p v-if="fieldErrors.password" class="mt-1 text-sm text-red-600">{{ fieldErrors.password }}</p>
         </div>
       </div>
 
