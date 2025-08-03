@@ -26,7 +26,13 @@ const { isShowWarnPopup, SignPopup, toggleWarnPopup } = useWarnPopup();
 
 function useSignature() {
   if (currentSelect.value) {
-    emit('useSignature', currentSelect.value.file_path);
+    console.log(currentSelect.value);
+    // If currentSelect is a string (URL/data URL), use it directly
+    // If it's an object with file_path, use that property
+    const signaturePath = typeof currentSelect.value === 'string' 
+      ? currentSelect.value 
+      : currentSelect.value.file_path;
+    emit('useSignature', signaturePath);
   }
   close();
 }
@@ -38,7 +44,13 @@ function selectSignature(signature: Signature) {
 function deleteSignature() {
   if (!currentSelect.value) return;
 
-  signatureStore.deleteSignature(currentSelect.value.id);
+  // If currentSelect is a string, use it directly
+  // If it's an object with id, use that property
+  const signatureId = typeof currentSelect.value === 'string'
+    ? currentSelect.value
+    : currentSelect.value.id;
+  
+  signatureStore.deleteSignature(signatureId);
   showToast(t('prompt.signature_delete_success'));
   toggleWarnPopup(false);
   currentSelect.value = null;
@@ -75,7 +87,10 @@ onMounted(async () => {
     @close="close"
     @use="useSignature"
   >
-    <ul v-if="signatureList.length" class="signature-list">
+    <ul
+      v-if="signatureList.length"
+      class="signature-list"
+    >
       <img
         src="@/assets/icon/ic_add_dark.svg"
         alt="add dark icon"
@@ -85,11 +100,11 @@ onMounted(async () => {
         @click="toggleDrawPopup(true)"
       />
       <li
-        v-for="signature in signatureList"
-        :key="signature.id"
+        v-for="(signature, index) in signatureList"
+        :key="index"
         :class="[
           'rounded-[20px] relative w-full flex justify-center cursor-pointer h-[98px]',
-          currentSelect?.id === signature.id ? 'bg-primary opacity-70' : 'bg-white',
+          currentSelect === signature ? 'bg-primary opacity-70' : 'bg-white',
         ]"
         @click="selectSignature(signature)"
       >
@@ -100,7 +115,7 @@ onMounted(async () => {
           @dragstart="dragSignature"
         />
         <sign-icon
-          v-show="currentSelect?.id === signature.id"
+          v-show="currentSelect === signature"
           name="close_s"
           class="absolute top-1 right-1 w-8 h-8 text-gray-80"
           hover-color="hover:text-danger"
@@ -109,7 +124,10 @@ onMounted(async () => {
       </li>
     </ul>
 
-    <div v-else class="signature-list justify-center">
+    <div
+      v-else
+      class="signature-list justify-center"
+    >
       <img
         src="@/assets/icon/ic_add_dark.svg"
         alt=""
@@ -129,15 +147,24 @@ onMounted(async () => {
     @close="toggleDrawPopup(false)"
   />
 
-  <sign-popup v-if="isShowWarnPopup" :title="$t('warn')">
+  <sign-popup
+    v-if="isShowWarnPopup"
+    :title="$t('warn')"
+  >
     <p class="text-center">
       {{ $t('prompt.sure_delete_signature') }}
     </p>
     <div class="flex justify-between">
-      <button class="btn btn-base" @click="toggleWarnPopup(false)">
+      <button
+        class="btn btn-base"
+        @click="toggleWarnPopup(false)"
+      >
         {{ $t('not_yet') }}
       </button>
-      <button class="btn btn-primary" @click="deleteSignature">
+      <button
+        class="btn btn-primary"
+        @click="deleteSignature"
+      >
         {{ $t('delete') }}
       </button>
     </div>

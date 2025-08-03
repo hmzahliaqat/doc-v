@@ -21,7 +21,7 @@ function close() {
     :is-show-mask="isShowPopup"
     @close="close"
   />
-  <div :class="['signature-popup z-[1]', isShowPopup ? 'translate-y-0 md:block' : 'translate-y-[100%] md:hidden']">
+  <div :class="['signature-popup z-[10]', isShowPopup ? 'translate-y-0 md:block' : 'translate-y-[100%] md:hidden']">
     <h5 class="title text-center md:hidden">
       {{ title }}
     </h5>
@@ -38,7 +38,9 @@ function close() {
       <button
         class="btn btn-primary"
         :disabled="isDisabled"
-        @click="emit('use')"
+        @click.stop="emit('use')"
+        @touchstart="emit('use')"
+        style="touch-action: manipulation; position: relative; z-index: 11;"
       >
         {{ customUseBtnName ?? $t('use') }}
       </button>
