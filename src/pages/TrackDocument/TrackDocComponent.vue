@@ -65,7 +65,7 @@
         >
           <template #groupheader="slotProps">
             <span class="align-middle ml-2 font-bold leading-normal">
-              {{ slotProps.data.employee.name }}
+              {{ slotProps.data?.employee?.name }}
             </span>
           </template>
 
@@ -119,12 +119,14 @@ import Toast from 'primevue/toast';
 import Badge from 'primevue/badge';
 import { usePdf } from '@/composables/pdf.js';
 import { usePdfStore } from '@/stores';
+import baseAxios from '@/base-axios';
 const toast = useToast();
 const customers = ref([]);
 const expandedRowGroups = ref();
 const totalShared = ref(null);
 const totalSigned = ref(null);
 const totalPending = ref(null);
+import { downloadPDF } from '@/utils/jspdf';
 
 const { trackDocument, remindDocument } = usePdf();
 const {PDFList} = usePdfStore();
@@ -145,47 +147,51 @@ onMounted(async () => {
   }
 });
 
-const calculateCustomerTotal = (name) => {
-  return customers.value.filter(c => c.representative.name === name).length;
-};
-
-const downloadDocument = (data) => {
 
 
-  console.log(data);
+const downloadDocument = async(data) => {
+  try {
+    // Show loading notification
+    // toast.add({ severity: 'info', summary: 'Downloading', detail: 'Preparing document for download...', life: 3000 });
 
-  // if (!data.file_path) {
-  //   toast.add({ severity: 'error', summary: 'Download Failed', detail: 'PDF path is missing.', life: 3000 });
-  //   return;
-  // }
-  //
-  // const fileUrl = `${window.location.origin}/storage/${data.file_path}`;
-  // console.log("Downloading from:", fileUrl);
-  //
-  // fetch(fileUrl)
-  //   .then(response => {
-  //     if (!response.ok) {
-  //       console.error("Fetch response:", response);
-  //       throw new Error(`HTTP error! Status: ${response.status}`);
-  //     }
-  //     return response.blob();
-  //   })
-  //   .then(blob => {
-  //     console.log("Blob type:", blob.type); // Should be application/pdf
-  //     const url = window.URL.createObjectURL(blob);
-  //     const link = document.createElement("a");
-  //     link.href = url;
-  //     link.download = data.document?.title || "document.pdf";
-  //     document.body.appendChild(link);
-  //     link.click();
-  //     link.remove();
-  //     setTimeout(() => window.URL.revokeObjectURL(url), 100);
-  //   })
-  //   .catch(error => {
-  //     console.error("Download failed:", error);
-  //     toast.add({ severity: 'error', summary: 'Download Failed', detail: `Unable to download the PDF. ${error.message}`, life: 3000 });
-  //   });
-};
+    // Extract filename from data
+    const filename = data.file_path;
+
+    // Send the file path in the request body using POST with responseType: 'blob'
+    const response = await baseAxios.post('api/documents/download-signed', {
+      file_name: filename
+    }, {
+      responseType: 'blob' // Important: This tells axios to expect binary data
+    });
+
+    // Create blob from response data
+    const blob = new Blob([response.data]);
+
+    // Create download URL
+    const url = window.URL.createObjectURL(blob);
+
+    // Create temporary anchor element and trigger download
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename.split('/').pop(); // Extract just the filename
+    document.body.appendChild(link);
+    link.click();
+
+    // Cleanup
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    // toast.add({ severity: 'success', summary: 'Success', detail: 'Document downloaded successfully', life: 3000 });
+  } catch (error) {
+    console.error('Error downloading document:', error);
+    toast.add({
+      severity: 'error',
+      summary: 'Download Failed',
+      detail: error.response?.data?.message || 'Failed to download document',
+      life: 3000
+    });
+  }
+}
 
 const remindUser = (data) => {
   remindDocument(data.id)

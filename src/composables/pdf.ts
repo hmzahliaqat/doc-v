@@ -4,6 +4,7 @@ import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 import type { Ref } from 'vue';
 import { useLoading } from '@/composables/loading';
+import { sanitizeFilePath } from '@/utils/path-helper';
 
 export const usePdf = () => {
   const toast = useToast();
@@ -44,6 +45,11 @@ export const usePdf = () => {
   }
 
   function storeDocument(PDF: PDF) {
+    // Sanitize PDFBase64 if it contains a file path with URL prefix
+    if (PDF.PDFBase64) {
+      PDF.PDFBase64 = sanitizeFilePath(PDF.PDFBase64);
+    }
+    
     return baseAxios
       .post(`api/documents`, PDF, {
         headers: {
@@ -66,6 +72,11 @@ export const usePdf = () => {
   }
 
   function updateDocument(PDF: PDF, id: string) {
+    // Sanitize PDFBase64 if it contains a file path with URL prefix
+    if (PDF.PDFBase64) {
+      PDF.PDFBase64 = sanitizeFilePath(PDF.PDFBase64);
+    }
+    
     return baseAxios
       .put(`api/documents/${id}`, PDF, {
         headers: {
@@ -90,6 +101,24 @@ export const usePdf = () => {
   function shareDocument(data: any) {
     // Show global loading overlay
     showLoading('Sharing document...');
+    
+    // Sanitize any file paths in the data object
+    if (data) {
+      // If data has a file_path property, sanitize it
+      if (data.file_path) {
+        data.file_path = sanitizeFilePath(data.file_path);
+      }
+      
+      // If data has a PDFBase64 property, sanitize it
+      if (data.PDFBase64) {
+        data.PDFBase64 = sanitizeFilePath(data.PDFBase64);
+      }
+      
+      // If data has a document property with a file_path, sanitize it
+      if (data.document && data.document.file_path) {
+        data.document.file_path = sanitizeFilePath(data.document.file_path);
+      }
+    }
     
     return baseAxios
       .post('/api/documents/share', data)

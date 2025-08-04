@@ -2,7 +2,7 @@
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/modules/user.js';
 import { useConfigStore } from '@/stores';
-
+import { AppFooter } from '@/components/layout/index.js';
 const router = useRouter();
 const authStore = useAuthStore();
 const configStore = useConfigStore();
@@ -15,6 +15,8 @@ const goToDashboard = () => {
   router.push({name:'home'});
 }
 
+const goToRegister = () => router.push({ name: 'register' })
+
 </script>
 
 
@@ -25,115 +27,103 @@ const goToDashboard = () => {
       <nav class="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
         <div class="flex lg:flex-1">
           <a href="#" class="-m-1.5 p-1.5">
-            <span class="sr-only">Your Company</span>
+            <span class="sr-only">DocuSign Pro</span>
             <img class="h-12 w-auto" :src="configStore.logos.auth" alt="">
           </a>
         </div>
         <div class="flex lg:hidden">
-          <button type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-400">
-            <span class="sr-only">Open main menu</span>
-            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-            </svg>
-          </button>
-        </div>
-        <div class="hidden lg:flex lg:gap-x-12">
-          <a href="#" class="text-sm font-semibold leading-6 text-white">Product</a>
-          <a href="#" class="text-sm font-semibold leading-6 text-white">Features</a>
-          <a href="#" class="text-sm font-semibold leading-6 text-white">Marketplace</a>
-          <a href="#" class="text-sm font-semibold leading-6 text-white">Company</a>
-        </div>
-        <div class="hidden cursor-pointer lg:flex lg:flex-1 lg:justify-end">
-          <a v-if="!authStore?.isAuthenticated" @click="goToLogin" class="text-sm font-semibold leading-6 text-white">Log in <span aria-hidden="true">&rarr;</span></a>
-          <a v-else @click="goToDashboard"  class="text-sm font-semibold leading-6 text-white">Dashboard</a>
+          <!-- Show Log in and Register if not authenticated -->
+          <template v-if="!authStore?.isAuthenticated">
+            <div class="flex items-center gap-3">
+              <a @click="goToLogin" class="cursor-pointer rounded-lg px-2 py-1.5 text-sm font-semibold leading-6 text-white hover:bg-white/10">
+                Log in
+              </a>
+              <a @click="goToRegister" class="cursor-pointer rounded-lg bg-indigo-600 px-2 py-1.5 text-sm font-semibold leading-6 text-white hover:bg-indigo-500">
+                Sign Up
+              </a>
+            </div>
+          </template>
 
+          <!-- Show Dashboard if authenticated -->
+          <a v-else @click="goToDashboard" class="cursor-pointer rounded-lg px-2 py-1.5 text-sm font-semibold leading-6 text-white hover:bg-white/10">
+            Dashboard
+          </a>
+        </div>
+
+        <div class="py-6 hidden lg:block">
+          <!-- Show Log in and Register if not authenticated -->
+          <template v-if="!authStore?.isAuthenticated">
+            <div class="flex items-center gap-4">
+              <a @click="goToLogin" class="cursor-pointer block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-white hover:bg-white/10">
+                Log in
+              </a>
+              <a @click="goToRegister" class="cursor-pointer block rounded-lg bg-indigo-600 px-3 py-2.5 text-base font-semibold leading-7 text-white hover:bg-indigo-500">
+                Sign Up
+              </a>
+            </div>
+          </template>
+
+          <!-- Show Dashboard if authenticated -->
+          <a v-else @click="goToDashboard" class="-mx-3 cursor-pointer block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-white hover:bg-white/10">
+            Dashboard
+          </a>
         </div>
       </nav>
-      <!-- Mobile menu, show/hide based on menu open state. -->
-      <div class="lg:hidden" role="dialog" aria-modal="true">
-        <!-- Background backdrop, show/hide based on slide-over state. -->
-        <div class="fixed inset-0 z-50"></div>
-        <div class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
-          <div class="flex items-center justify-between">
-            <a href="#" class="-m-1.5 p-1.5">
-              <span class="sr-only">Your Company</span>
-              <img class="h-8 w-auto" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600" alt="">
-            </a>
-            <button type="button" class="-m-2.5 rounded-md p-2.5 text-gray-700">
-              <span class="sr-only">Close menu</span>
-              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-          <div class="mt-6 flow-root">
-            <div class="-my-6 divide-y divide-gray-500/10">
-              <div class="space-y-2 py-6">
-                <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Product</a>
-                <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Features</a>
-                <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Marketplace</a>
-                <a href="#" class="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Company</a>
-              </div>
-              <div class="py-6">
-                <a v-if="!authStore?.isAuthenticated" @click="goToLogin" class="-mx-3 cursor-pointer block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Log in</a>
-                <a v-else @click="goToDashboard" class="-mx-3 cursor-pointer block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Dashboard</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </header>
 
     <main>
       <!-- Hero section -->
-      <div class="relative isolate overflow-hidden bg-gray-900 pb-16 pt-14 sm:pb-20">
-        <img src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2830&q=80&blend=111827&sat=-100&exp=15&blend-mode=multiply" alt="" class="absolute inset-0 -z-10 h-full w-full object-cover">
+      <div class="relative isolate overflow-hidden bg-gray-900 pb-10 pt-4 sm:pb-20">
+        <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80&blend=111827&sat=-100&exp=15&blend-mode=multiply" alt="Document signing background" class="absolute inset-0 -z-10 h-full w-full object-cover">
         <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80" aria-hidden="true">
           <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
         </div>
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
-          <div class="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
+          <div class="mx-auto max-w-2xl py-20 sm:py-48 lg:py-56">
             <div class="hidden sm:mb-8 sm:flex sm:justify-center">
               <div class="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-400 ring-1 ring-white/10 hover:ring-white/20">
-                Announcing our next round of funding. <a href="#" class="font-semibold text-white"><span class="absolute inset-0" aria-hidden="true"></span>Read more <span aria-hidden="true">&rarr;</span></a>
+                Trusted by 10M+ professionals worldwide. <a href="#" class="font-semibold text-white"><span class="absolute inset-0" aria-hidden="true"></span>Learn more <span aria-hidden="true">&rarr;</span></a>
               </div>
             </div>
             <div class="text-center">
-              <h1 class="text-4xl font-bold tracking-tight text-white sm:text-6xl">Deploy to the cloud with confidence</h1>
-              <p class="mt-6 text-lg leading-8 text-gray-300">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo. Elit sunt amet fugiat veniam occaecat fugiat aliqua.</p>
+              <h1 class="text-4xl font-bold tracking-tight text-white sm:text-6xl">Sign documents digitally with confidence</h1>
+              <p class="mt-6 text-lg leading-8 text-gray-300">Streamline your document workflow with secure electronic signatures. Send, sign, and manage contracts from anywhere in the world with our legally binding e-signature platform.</p>
               <div class="mt-10 flex items-center justify-center gap-x-6">
-                <a href="#" class="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">Get started</a>
-                <a href="#" class="text-sm font-semibold leading-6 text-white">Live demo <span aria-hidden="true">→</span></a>
+                <a @click="goToRegister" class="rounded-md cursor-pointer bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400">Start signing for free</a>
+                <a href="#video-demo" class="text-sm font-semibold leading-6 text-white">Watch demo <span aria-hidden="true">→</span></a>
               </div>
             </div>
           </div>
 
-          <!-- Logo cloud -->
-          <div class="mx-auto grid max-w-lg grid-cols-4 items-center gap-x-8 gap-y-10 sm:max-w-xl sm:grid-cols-6 sm:gap-x-10 lg:mx-0 lg:max-w-none lg:grid-cols-5">
-            <img class="col-span-2 max-h-12 w-full object-contain lg:col-span-1" src="https://tailwindui.com/img/logos/158x48/transistor-logo-white.svg" alt="Transistor" width="158" height="48">
-            <img class="col-span-2 max-h-12 w-full object-contain lg:col-span-1" src="https://tailwindui.com/img/logos/158x48/reform-logo-white.svg" alt="Reform" width="158" height="48">
-            <img class="col-span-2 max-h-12 w-full object-contain lg:col-span-1" src="https://tailwindui.com/img/logos/158x48/tuple-logo-white.svg" alt="Tuple" width="158" height="48">
-            <img class="col-span-2 max-h-12 w-full object-contain sm:col-start-2 lg:col-span-1" src="https://tailwindui.com/img/logos/158x48/savvycal-logo-white.svg" alt="SavvyCal" width="158" height="48">
-            <img class="col-span-2 col-start-2 max-h-12 w-full object-contain sm:col-start-auto lg:col-span-1" src="https://tailwindui.com/img/logos/158x48/statamic-logo-white.svg" alt="Statamic" width="158" height="48">
-          </div>
+
         </div>
         <div class="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]" aria-hidden="true">
           <div class="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-20 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]" style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)"></div>
         </div>
       </div>
 
-      <!-- Feature section -->
-      <div class="mt-32 sm:mt-56">
+      <!-- Video Demo section -->
+      <div id="video-demo" class="mt-32 sm:mt-56">
         <div class="mx-auto max-w-7xl px-6 lg:px-8">
           <div class="mx-auto max-w-2xl sm:text-center">
-            <h2 class="text-base font-semibold leading-7 text-indigo-600">Everything you need</h2>
-            <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">No server? No problem.</p>
-            <p class="mt-6 text-lg leading-8 text-gray-600">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Maiores impedit perferendis suscipit eaque, iste dolor cupiditate blanditiis.</p>
+            <h2 class="text-base font-semibold leading-7 text-indigo-600">See it in action</h2>
+            <p class="mt-2 text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Simple. Secure. Legally binding.</p>
+            <p class="mt-6 text-lg leading-8 text-gray-600">Watch how easy it is to send, sign, and manage your documents with our intuitive platform. Get documents signed in minutes, not days.</p>
           </div>
         </div>
         <div class="relative overflow-hidden pt-16">
           <div class="mx-auto max-w-7xl px-6 lg:px-8">
-            <img src="https://tailwindui.com/img/component-images/project-app-screenshot.png" alt="App screenshot" class="mb-[-12%] rounded-xl shadow-2xl ring-1 ring-gray-900/10" width="2432" height="1442">
+            <!-- YouTube Video Embed -->
+            <div class="relative aspect-video rounded-xl shadow-2xl ring-1 ring-gray-900/10 overflow-hidden">
+              <iframe
+                class="w-full h-full"
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                title="Document Signing Demo"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen>
+              </iframe>
+            </div>
             <div class="relative" aria-hidden="true">
               <div class="absolute -inset-x-20 bottom-0 bg-gradient-to-t from-white pt-[7%]"></div>
             </div>
@@ -144,57 +134,56 @@ const goToDashboard = () => {
             <div class="relative pl-9">
               <dt class="inline font-semibold text-gray-900">
                 <svg class="absolute left-1 top-1 h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M5.5 17a4.5 4.5 0 01-1.44-8.765 4.5 4.5 0 018.302-3.046 3.5 3.5 0 014.504 4.272A4 4 0 0115 17H5.5zm3.75-2.75a.75.75 0 001.5 0V9.66l1.95 2.1a.75.75 0 101.1-1.02l-3.25-3.5a.75.75 0 00-1.1 0l-3.25 3.5a.75.75 0 101.1 1.02l1.95-2.1v4.59z" clip-rule="evenodd" />
+                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
                 </svg>
-                Push to deploy.
+                Upload and send.
               </dt>
-              <dd class="inline">Lorem ipsum, dolor sit amet consectetur adipisicing elit aute id magna.</dd>
+              <dd class="inline">Upload your document, add signers, and send for signature in seconds. Support for PDF, Word, and more.</dd>
             </div>
             <div class="relative pl-9">
               <dt class="inline font-semibold text-gray-900">
                 <svg class="absolute left-1 top-1 h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd" />
                 </svg>
-                SSL certificates.
+                Bank-level security.
               </dt>
-              <dd class="inline">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</dd>
+              <dd class="inline">256-bit SSL encryption, SOC 2 Type II certified, and GDPR compliant. Your documents are always secure.</dd>
             </div>
             <div class="relative pl-9">
               <dt class="inline font-semibold text-gray-900">
                 <svg class="absolute left-1 top-1 h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clip-rule="evenodd" />
+                  <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.93 3.618 28.3 28.3 0 01-2.62.94A.75.75 0 0112 13.5h-.01a.75.75 0 01-.75-.75V9a.75.75 0 01.75-.75H12a.75.75 0 01.75.75 28.3 28.3 0 01.94 2.62A7.001 7.001 0 012 9z" clip-rule="evenodd" />
                 </svg>
-                Simple queues.
+                Real-time tracking.
               </dt>
-              <dd class="inline">Ac tincidunt sapien vehicula erat auctor pellentesque rhoncus.</dd>
+              <dd class="inline">Track document status in real-time. Get notifications when documents are viewed, signed, or completed.</dd>
             </div>
             <div class="relative pl-9">
               <dt class="inline font-semibold text-gray-900">
                 <svg class="absolute left-1 top-1 h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M10 2.5c-1.31 0-2.526.386-3.546 1.051a.75.75 0 01-.82-1.256A8 8 0 0118 9a22.47 22.47 0 01-1.228 7.351.75.75 0 11-1.417-.49A20.97 20.97 0 0016.5 9 6.5 6.5 0 0010 2.5zM4.333 4.416a.75.75 0 01.218 1.038A6.466 6.466 0 003.5 9a7.966 7.966 0 01-1.293 4.362.75.75 0 01-1.257-.819A6.466 6.466 0 002 9c0-1.61.476-3.11 1.295-4.365a.75.75 0 011.038-.219zM10 6.12a3 3 0 00-3.001 3.041 11.455 11.455 0 01-2.697 7.24.75.75 0 01-1.148-.965A9.957 9.957 0 005.5 9c0-.028.002-.055.004-.082a4.5 4.5 0 018.996.084V9.15l-.005.297a.75.75 0 11-1.5-.034c.003-.11.004-.219.005-.328a3 3 0 00-3-2.965zm0 2.13a.75.75 0 01.75.75c0 3.51-1.187 6.745-3.181 9.323a.75.75 0 11-1.186-.918A13.687 13.687 0 009.25 9a.75.75 0 01.75-.75zm3.529 3.698a.75.75 0 01.584.885 18.883 18.883 0 01-2.257 5.84.75.75 0 11-1.29-.764 17.386 17.386 0 002.078-5.377.75.75 0 01.885-.584z" clip-rule="evenodd" />
+                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
                 </svg>
-                Advanced security.
+                Legally binding.
               </dt>
-              <dd class="inline">Lorem ipsum, dolor sit amet consectetur adipisicing elit aute id magna.</dd>
+              <dd class="inline">Compliant with eSignature laws worldwide including ESIGN Act, UETA, and eIDAS regulations.</dd>
             </div>
             <div class="relative pl-9">
               <dt class="inline font-semibold text-gray-900">
                 <svg class="absolute left-1 top-1 h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M7.84 1.804A1 1 0 018.82 1h2.36a1 1 0 01.98.804l.331 1.652a6.993 6.993 0 011.929 1.115l1.598-.54a1 1 0 011.186.447l1.18 2.044a1 1 0 01-.205 1.251l-1.267 1.113a7.047 7.047 0 010 2.228l1.267 1.113a1 1 0 01.206 1.25l-1.18 2.045a1 1 0 01-1.187.447l-1.598-.54a6.993 6.993 0 01-1.929 1.115l-.33 1.652a1 1 0 01-.98.804H8.82a1 1 0 01-.98-.804l-.331-1.652a6.993 6.993 0 01-1.929-1.115l-1.598.54a1 1 0 01-1.186-.447l-1.18-2.044a1 1 0 01.205-1.251l1.267-1.114a7.05 7.05 0 010-2.227L1.821 7.773a1 1 0 01-.206-1.25l1.18-2.045a1 1 0 011.187-.447l1.598.54A6.993 6.993 0 017.51 3.456l.33-1.652zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" />
                 </svg>
-                Powerful API.
+                Template library.
               </dt>
-              <dd class="inline">Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.</dd>
+              <dd class="inline">Access hundreds of pre-built templates for contracts, NDAs, HR documents, and more.</dd>
             </div>
             <div class="relative pl-9">
               <dt class="inline font-semibold text-gray-900">
                 <svg class="absolute left-1 top-1 h-5 w-5 text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path d="M4.632 3.533A2 2 0 016.577 2h6.846a2 2 0 011.945 1.533l1.976 8.234A3.489 3.489 0 0016 11.5H4c-.476 0-.93.095-1.344.267l1.976-8.234z" />
-                  <path fill-rule="evenodd" d="M4 13a2 2 0 100 4h12a2 2 0 100-4H4zm11.24 2a.75.75 0 01.75-.75H16a.75.75 0 01.75.75v.01a.75.75 0 01-.75.75h-.01a.75.75 0 01-.75-.75V15zm-2.25-.75a.75.75 0 00-.75.75v.01c0 .414.336.75.75.75H13a.75.75 0 00.75-.75V15a.75.75 0 00-.75-.75h-.01z" clip-rule="evenodd" />
+                  <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
                 </svg>
-                Database backups.
+                Integration ready.
               </dt>
-              <dd class="inline">Ac tincidunt sapien vehicula erat auctor pellentesque rhoncus.</dd>
+              <dd class="inline">Seamlessly integrate with your favorite tools including Salesforce, Google Drive, Dropbox, and more.</dd>
             </div>
           </dl>
         </div>
@@ -210,7 +199,7 @@ const goToDashboard = () => {
         <div class="mx-auto flex max-w-7xl flex-col items-center gap-x-8 gap-y-10 px-6 sm:gap-y-8 lg:px-8 xl:flex-row xl:items-stretch">
           <div class="-mt-8 w-full max-w-2xl xl:-mb-8 xl:w-96 xl:flex-none">
             <div class="relative aspect-[2/1] h-full md:-mx-8 xl:mx-0 xl:aspect-auto">
-              <img class="absolute inset-0 h-full w-full rounded-2xl bg-gray-800 object-cover shadow-2xl" src="https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2102&q=80" alt="">
+              <img class="absolute inset-0 h-full w-full rounded-2xl bg-gray-800 object-cover shadow-2xl" src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1926&q=80" alt="Business professional">
             </div>
           </div>
           <div class="w-full max-w-2xl xl:max-w-none xl:flex-auto xl:px-16 xl:py-24">
@@ -220,11 +209,11 @@ const goToDashboard = () => {
                 <use href="#b56e9dab-6ccb-4d32-ad02-6b4bb5d9bbeb" x="86" />
               </svg>
               <blockquote class="text-xl font-semibold leading-8 text-white sm:text-2xl sm:leading-9">
-                <p>Gravida quam mi erat tortor neque molestie. Auctor aliquet at porttitor a enim nunc suscipit tincidunt nunc. Et non lorem tortor posuere. Nunc eu scelerisque interdum eget tellus non nibh scelerisque bibendum.</p>
+                <p>We've cut our contract turnaround time from weeks to hours. The platform is intuitive, secure, and our clients love how easy it is to sign documents from anywhere. It's revolutionized our business operations.</p>
               </blockquote>
               <figcaption class="mt-8 text-base">
-                <div class="font-semibold text-white">Judith Black</div>
-                <div class="mt-1 text-gray-400">CEO of Tuple</div>
+                <div class="font-semibold text-white">Sarah Mitchell</div>
+                <div class="mt-1 text-gray-400">General Counsel at TechCorp</div>
               </figcaption>
             </figure>
           </div>
@@ -238,64 +227,82 @@ const goToDashboard = () => {
         </div>
         <div class="mx-auto max-w-2xl text-center lg:max-w-4xl">
           <h2 class="text-base font-semibold leading-7 text-indigo-600">Pricing</h2>
-          <p class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">The right price for you, whoever you are</p>
+          <p class="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">Simple pricing for every business</p>
         </div>
-        <p class="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600">Qui iusto aut est earum eos quae. Eligendi est at nam aliquid ad quo reprehenderit in aliquid fugiat dolorum voluptatibus.</p>
+        <p class="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600">Choose the plan that fits your document signing needs. From individuals to enterprises, we have you covered.</p>
         <div class="mx-auto mt-16 grid max-w-lg grid-cols-1 items-center gap-y-6 sm:mt-20 sm:gap-y-0 lg:max-w-4xl lg:grid-cols-2">
           <div class="rounded-3xl p-8 ring-1 ring-gray-900/10 sm:p-10 bg-white/60 sm:mx-8 lg:mx-0 rounded-t-3xl sm:rounded-b-none lg:rounded-tr-none lg:rounded-bl-3xl">
-            <h3 id="tier-hobby" class="text-base font-semibold leading-7 text-indigo-600">Hobby</h3>
+            <h3 id="tier-starter" class="text-base font-semibold leading-7 text-indigo-600">Starter</h3>
             <p class="mt-4 flex items-baseline gap-x-2">
-              <span class="text-5xl font-bold tracking-tight text-gray-900">$19</span>
+              <span class="text-5xl font-bold tracking-tight text-gray-900">$15</span>
               <span class="text-base text-gray-500">/month</span>
             </p>
-            <p class="mt-6 text-base leading-7 text-gray-600">The perfect plan if you&#039;re just getting started with our product.</p>
+            <p class="mt-6 text-base leading-7 text-gray-600">Perfect for individuals and small businesses getting started with digital signatures.</p>
             <ul role="list" class="mt-8 space-y-3 text-sm leading-6 sm:mt-10 text-gray-600">
               <li class="flex gap-x-3">
                 <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
                 </svg>
-                25 products
+                5 documents per month
               </li>
               <li class="flex gap-x-3">
                 <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
                 </svg>
-                Up to 10,000 subscribers
+                Unlimited signers
               </li>
               <li class="flex gap-x-3">
                 <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
                 </svg>
-                Advanced analytics
+                Basic templates
               </li>
               <li class="flex gap-x-3">
                 <svg class="h-6 w-5 flex-none text-indigo-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
                 </svg>
-                24-hour support response time
+                Email support
               </li>
             </ul>
-            <a href="#" aria-describedby="tier-hobby" class="mt-8 block rounded-md py-2.5 px-3.5 text-center text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10 text-indigo-600 ring-1 ring-inset ring-indigo-200 hover:ring-indigo-300 focus-visible:outline-indigo-600">Get started today</a>
+            <a href="#" aria-describedby="tier-starter" class="mt-8 block rounded-md py-2.5 px-3.5 text-center text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10 text-indigo-600 ring-1 ring-inset ring-indigo-200 hover:ring-indigo-300 focus-visible:outline-indigo-600">Get started today</a>
           </div>
           <div class="rounded-3xl p-8 ring-1 ring-gray-900/10 sm:p-10 relative bg-gray-900 shadow-2xl">
-            <h3 id="tier-enterprise" class="text-base font-semibold leading-7 text-indigo-400">Enterprise</h3>
+            <h3 id="tier-business" class="text-base font-semibold leading-7 text-indigo-400">Business</h3>
             <p class="mt-4 flex items-baseline gap-x-2">
               <span class="text-5xl font-bold tracking-tight text-white">$49</span>
               <span class="text-base text-gray-400">/month</span>
             </p>
-            <p class="mt-6 text-base leading-7 text-gray-300">Dedicated support and infrastructure for your company.</p>
+            <p class="mt-6 text-base leading-7 text-gray-300">Advanced features and integrations for growing businesses and teams.</p>
             <ul role="list" class="mt-8 space-y-3 text-sm leading-6 sm:mt-10 text-gray-300">
               <li class="flex gap-x-3">
                 <svg class="h-6 w-5 flex-none text-indigo-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
                 </svg>
-                Unlimited products
+                Unlimited documents
               </li>
               <li class="flex gap-x-3">
                 <svg class="h-6 w-5 flex-none text-indigo-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
                 </svg>
-                Unlimited subscribers
+                Advanced templates
+              </li>
+              <li class="flex gap-x-3">
+                <svg class="h-6 w-5 flex-none text-indigo-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                </svg>
+                API integrations
+              </li>
+              <li class="flex gap-x-3">
+                <svg class="h-6 w-5 flex-none text-indigo-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                </svg>
+                Team management
+              </li>
+              <li class="flex gap-x-3">
+                <svg class="h-6 w-5 flex-none text-indigo-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
+                </svg>
+                Priority support
               </li>
               <li class="flex gap-x-3">
                 <svg class="h-6 w-5 flex-none text-indigo-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -303,153 +310,15 @@ const goToDashboard = () => {
                 </svg>
                 Advanced analytics
               </li>
-              <li class="flex gap-x-3">
-                <svg class="h-6 w-5 flex-none text-indigo-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
-                </svg>
-                Dedicated support representative
-              </li>
-              <li class="flex gap-x-3">
-                <svg class="h-6 w-5 flex-none text-indigo-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
-                </svg>
-                Marketing automations
-              </li>
-              <li class="flex gap-x-3">
-                <svg class="h-6 w-5 flex-none text-indigo-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                  <path fill-rule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clip-rule="evenodd" />
-                </svg>
-                Custom integrations
-              </li>
             </ul>
-            <a href="#" aria-describedby="tier-enterprise" class="mt-8 block rounded-md py-2.5 px-3.5 text-center text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10 bg-indigo-500 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline-indigo-500">Get started today</a>
+            <a href="#" aria-describedby="tier-business" class="mt-8 block rounded-md py-2.5 px-3.5 text-center text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 sm:mt-10 bg-indigo-500 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline-indigo-500">Get started today</a>
           </div>
         </div>
       </div>
 
-      <!-- FAQ section -->
-      <div class="mx-auto mt-32 max-w-7xl px-6 sm:mt-56 lg:px-8">
-        <div class="mx-auto max-w-4xl divide-y divide-gray-900/10">
-          <h2 class="text-2xl font-bold leading-10 tracking-tight text-gray-900">Frequently asked questions</h2>
-          <dl class="mt-10 space-y-6 divide-y divide-gray-900/10">
-            <div class="pt-6">
-              <dt>
-                <!-- Expand/collapse question button -->
-                <button type="button" class="flex w-full items-start justify-between text-left text-gray-900" aria-controls="faq-0" aria-expanded="false">
-                  <span class="text-base font-semibold leading-7">What&#039;s the best thing about Switzerland?</span>
-                  <span class="ml-6 flex h-7 items-center">
-                  <!--
-                    Icon when question is collapsed.
-
-                    Item expanded: "hidden", Item collapsed: ""
-                  -->
-                  <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
-                  </svg>
-                    <!--
-                      Icon when question is expanded.
-
-                      Item expanded: "", Item collapsed: "hidden"
-                    -->
-                  <svg class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M18 12H6" />
-                  </svg>
-                </span>
-                </button>
-              </dt>
-              <dd class="mt-2 pr-12" id="faq-0">
-                <p class="text-base leading-7 text-gray-600">I don&#039;t know, but the flag is a big plus. Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas cupiditate laboriosam fugiat.</p>
-              </dd>
-            </div>
-
-            <!-- More questions... -->
-          </dl>
-        </div>
-      </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="mt-32 bg-gray-900 sm:mt-56" aria-labelledby="footer-heading">
-      <h2 id="footer-heading" class="sr-only">Footer</h2>
-      <div class="mx-auto max-w-7xl px-6 py-16 sm:py-24 lg:px-8 lg:py-32">
-        <div class="xl:grid xl:grid-cols-3 xl:gap-8">
-          <img class="h-7" src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=500" alt="Company name">
-          <div class="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
-            <div class="md:grid md:grid-cols-2 md:gap-8">
-              <div>
-                <h3 class="text-sm font-semibold leading-6 text-white">Solutions</h3>
-                <ul role="list" class="mt-6 space-y-4">
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">Marketing</a>
-                  </li>
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">Analytics</a>
-                  </li>
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">Commerce</a>
-                  </li>
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">Insights</a>
-                  </li>
-                </ul>
-              </div>
-              <div class="mt-10 md:mt-0">
-                <h3 class="text-sm font-semibold leading-6 text-white">Support</h3>
-                <ul role="list" class="mt-6 space-y-4">
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">Pricing</a>
-                  </li>
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">Documentation</a>
-                  </li>
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">Guides</a>
-                  </li>
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">API Status</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div class="md:grid md:grid-cols-2 md:gap-8">
-              <div>
-                <h3 class="text-sm font-semibold leading-6 text-white">Company</h3>
-                <ul role="list" class="mt-6 space-y-4">
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">About</a>
-                  </li>
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">Blog</a>
-                  </li>
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">Jobs</a>
-                  </li>
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">Press</a>
-                  </li>
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">Partners</a>
-                  </li>
-                </ul>
-              </div>
-              <div class="mt-10 md:mt-0">
-                <h3 class="text-sm font-semibold leading-6 text-white">Legal</h3>
-                <ul role="list" class="mt-6 space-y-4">
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">Claim</a>
-                  </li>
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">Privacy</a>
-                  </li>
-                  <li>
-                    <a href="#" class="text-sm leading-6 text-gray-300 hover:text-white">Terms</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </footer>
   </div>
+  <AppFooter />
+
 </template>

@@ -125,9 +125,22 @@ async function mergeFile() {
 
       // ✅ If loaded from URL, rename and assign new ID to avoid overwrite
       if (isLoadedFromUrl.value) {
-        const randomId = `${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
-        file.PDFId = `copied-${file.PDFId}-${randomId}`;
-        file.name = `${file.name}-copy-${randomId}`;
+        const timestamp = Date.now();
+        const randomNum = Math.floor(Math.random() * 1000000);
+        
+        // Generate a clean filename with only alphanumeric characters
+        const generateCleanFilename = (originalName) => {
+          // Remove file extension if present
+          const nameWithoutExt = originalName.replace(/\.[^/.]+$/, "");
+          // Replace spaces and special characters with empty string, keep only letters and numbers
+          const cleanName = nameWithoutExt.replace(/[^a-zA-Z0-9]/g, "");
+          // Ensure uniqueness by adding timestamp and random number
+          return `${cleanName}${timestamp}${randomNum}`;
+        };
+        
+        const cleanName = generateCleanFilename(file.name);
+        file.PDFId = `c-${file.PDFId}-${timestamp}-${randomNum}`;
+        file.name = cleanName;
         file.isUpdate = false; // Prevent updatePDF, force addPDF
       }
 
