@@ -151,48 +151,146 @@ onMounted(async () => {
 
 const downloadDocument = async(data) => {
   try {
-    // Show loading notification
-    // toast.add({ severity: 'info', summary: 'Downloading', detail: 'Preparing document for download...', life: 3000 });
-
     // Extract filename from data
     const filename = data.file_path;
+
+    // First, check if we have a matching document in the local PDFList
+    const localDocument = PDFList.find(pdf => {
+      // Try to match by file path
+      if (pdf.PDFBase64 && pdf.PDFBase64.includes(filename)) {
+        return true;
+      }
+
+      // Try to match by document ID if available
+      if (data.id && pdf.PDFId && pdf.PDFId.includes(data.id)) {
+        return true;
+      }
+
+      // Try to match by filename if we stored it
+      if (pdf.fileName && filename.includes(pdf.fileName)) {
+        return true;
+      }
+
+      return false;
+    });
+
+    // If we found a local document, recreate the blob from PDFBase64
+    if (localDocument && localDocument.PDFBase64) {
+      console.log('Found local document, downloading from PDFBase64:', localDocument);
+
+      try {
+        // Convert base64 to blob
+        let pdfBlob;
+
+        if (localDocument.PDFBase64.startsWith('data:application/pdf;base64,')) {
+          // If it's a data URL, extract the base64 part
+          const base64Data = localDocument.PDFBase64.split(',')[1];
+          const binaryString = atob(base64Data);
+          const bytes = new Uint8Array(binaryString.length);
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          pdfBlob = new Blob([bytes], { type: 'application/pdf' });
+        } else {
+          // If it's just base64 string, decode it directly
+          const binaryString = atob(localDocument.PDFBase64);
+          const bytes = new Uint8Array(binaryString.length);
+          for (let i = 0; i < binaryString.length; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+          pdfBlob = new Blob([bytes], { type: 'application/pdf' });
+        }
+
+        // Create new blob URL
+        const blobUrl = URL.createObjectURL(pdfBlob);
+
+        // Create temporary anchor element and trigger download
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = filename.split('/').pop() || localDocument.fileName || 'document.pdf';
+        link.style.display = 'none';
+
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup after a short delay
+        setTimeout(() => {
+          document.body.removeChild(link);
+          URL.revokeObjectURL(blobUrl);
+        }, 100);
+
+        toast.add({ severity: 'success', summary: 'Success', detail: 'Document downloaded from local storage', life: 3000 });
+        return;
+
+      } catch (base64Error) {
+        console.warn('Failed to download from local PDFBase64, falling back to server:', base64Error);
+        // Fall through to server download
+      }
+    }
+
+    // If no local document found or local download failed, fall back to server download
+    console.log('Downloading from server');
 
     // Send the file path in the request body using POST with responseType: 'blob'
     const response = await baseAxios.post('api/documents/download-signed', {
       file_name: filename
     }, {
-      responseType: 'blob' // Important: This tells axios to expect binary data
+      responseType: 'blob', // Important: This tells axios to expect binary data
+      timeout: 30000 // 30 second timeout
     });
 
-    // Create blob from response data
-    const blob = new Blob([response.data]);
+    // Verify we got a valid blob response
+    if (!response.data || response.data.size === 0) {
+      throw new Error('Received empty file from server');
+    }
+
+    // Create blob with explicit PDF type
+    const blob = new Blob([response.data], { type: 'application/pdf' });
 
     // Create download URL
-    const url = window.URL.createObjectURL(blob);
+    const url = URL.createObjectURL(blob);
 
     // Create temporary anchor element and trigger download
     const link = document.createElement('a');
     link.href = url;
-    link.download = filename.split('/').pop(); // Extract just the filename
+    link.download = filename.split('/').pop() || 'document.pdf'; // Extract just the filename
+    link.style.display = 'none';
+
     document.body.appendChild(link);
     link.click();
 
-    // Cleanup
-    document.body.removeChild(link);
-    window.URL.revokeObjectURL(url);
+    // Cleanup after a short delay
+    setTimeout(() => {
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }, 100);
 
-    // toast.add({ severity: 'success', summary: 'Success', detail: 'Document downloaded successfully', life: 3000 });
+    toast.add({ severity: 'success', summary: 'Success', detail: 'Document downloaded from server', life: 3000 });
+
   } catch (error) {
     console.error('Error downloading document:', error);
+
+    // More specific error messages
+    let errorMessage = 'Failed to download document';
+
+    if (error.code === 'ECONNABORTED') {
+      errorMessage = 'Download timeout - file too large or server slow';
+    } else if (error.response?.status === 404) {
+      errorMessage = 'Document not found on server';
+    } else if (error.response?.status === 403) {
+      errorMessage = 'Access denied - insufficient permissions';
+    } else if (error.response?.data?.message) {
+      errorMessage = error.response.data.message;
+    }
+
     toast.add({
       severity: 'error',
       summary: 'Download Failed',
-      detail: error.response?.data?.message || 'Failed to download document',
-      life: 3000
+      detail: errorMessage,
+      life: 5000
     });
   }
 }
-
 const remindUser = (data) => {
   remindDocument(data.id)
     .then(res => {

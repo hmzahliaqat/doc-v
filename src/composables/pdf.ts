@@ -213,6 +213,28 @@ export const usePdf = () => {
         throw new Error(message);
       });
   }
+  
+  function saveToPublic(formData: FormData) {
+    return baseAxios
+      .post('/api/documents/save-to-public', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then(response => {
+        toast.success('Document saved to public folder successfully.', {
+          position: 'top-right',
+        });
+        return response.data;
+      })
+      .catch(error => {
+        console.error('Error saving document to public folder:', error);
+        toast.error('Failed to save document to public folder.', {
+          position: 'top-right',
+        });
+        throw error;
+      });
+  }
 
   return {
     getDocuments,
@@ -224,5 +246,6 @@ export const usePdf = () => {
     getTrashed,
     deleteDocument,
     remindDocument,
+    saveToPublic,
   };
 };

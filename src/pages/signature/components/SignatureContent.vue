@@ -27,7 +27,6 @@ import SignatureSign from './SignatureSign.vue';
 import SignatureToolbar from './SignatureToolbar.vue';
 import { useRoute } from 'vue-router';
 
-
 const CANVAS_SCALE = 0.6;
 const SignatureCanvasItem = defineAsyncComponent(() => import('@component-hook/pdf-canvas/vue'));
 const currentTool = ref<SignatureTool | ''>('');
@@ -108,40 +107,62 @@ async function mergeFile() {
         pdf.addImage(dataUrl, 'PNG', 0, 0, pdfWidth, pdfHeight);
       });
 
-
-
       const PDFBase64 = pdf.output('datauristring');
+
+      // Generate a unique filename for the PDF
+      const timestamp = Date.now();
+      const randomNum = Math.floor(Math.random() * 1000000);
+      const pdfFileName = `${timestamp}_${randomNum}.pdf`;
+
+      // Get raw PDF data as blob for potential download
+      const pdfBlob = pdf.output('blob');
+
+      // Create a URL for the blob that can be used for downloading
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+
+      // Store the PDF in client-side memory
+      console.log('PDF stored in client-side memory with blob URL:', pdfUrl);
 
       // 🔁 Clone current PDF
       let file = {
         isResave: isLoadedFromUrl.value ?? false,
         ...currentPDF.value,
         PDFBase64,
-        updateDate: Date.now(),
+        updateDate: timestamp,
         canvas,
         employee_id: employee_id,
-        shared_document_id: shared_document_id
+        shared_document_id: shared_document_id,
+        fileName: pdfFileName,
+        localBlobUrl: pdfUrl
       };
 
       // ✅ If loaded from URL, rename and assign new ID to avoid overwrite
       if (isLoadedFromUrl.value) {
         const timestamp = Date.now();
         const randomNum = Math.floor(Math.random() * 1000000);
-        
+
         // Generate a clean filename with only alphanumeric characters
         const generateCleanFilename = (originalName) => {
-          // Remove file extension if present
           const nameWithoutExt = originalName.replace(/\.[^/.]+$/, "");
-          // Replace spaces and special characters with empty string, keep only letters and numbers
           const cleanName = nameWithoutExt.replace(/[^a-zA-Z0-9]/g, "");
-          // Ensure uniqueness by adding timestamp and random number
           return `${cleanName}${timestamp}${randomNum}`;
         };
-        
+
         const cleanName = generateCleanFilename(file.name);
         file.PDFId = `c-${file.PDFId}-${timestamp}-${randomNum}`;
         file.name = cleanName;
-        file.isUpdate = false; // Prevent updatePDF, force addPDF
+        file.isUpdate = false;
+
+        // 📁 Auto-download the PDF to user's device
+        const downloadLink = document.createElement('a');
+        downloadLink.href = pdfUrl;
+        downloadLink.download = `${cleanName}.pdf`;
+        downloadLink.style.display = 'none';
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+
+        console.log(`PDF automatically downloaded as: ${cleanName}.pdf`);
       }
 
       if (file.isUpdate) {
@@ -160,7 +181,6 @@ async function mergeFile() {
     }
   });
 }
-
 function addFabric(value: string, type?: string) {
   const canvas = currentCanvasItem.value;
 
