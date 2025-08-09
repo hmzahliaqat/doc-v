@@ -2,8 +2,11 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useUserApi } from '@/composables/user';
 export const useAuthStore = defineStore('auth', () => {
-  // Initialize role from localStorage if available
+  // Initialize values from localStorage if available
   const storedRole = localStorage.getItem('user_role');
+  const storedPartiallyAuthenticated = localStorage.getItem('partially_authenticated') === 'true';
+  const storedOtpVerificationPending = localStorage.getItem('otp_verification_pending') === 'true';
+  const storedPendingEmail = localStorage.getItem('pending_email') || '';
   
   const user = ref(null as null | { name: string; email: string; email_verified_at?: string });
   const role = ref(storedRole as null | string);
@@ -14,6 +17,12 @@ export const useAuthStore = defineStore('auth', () => {
   const registrationSuccess = ref(false);
   const profileUpdateSuccess = ref(false);
   const passwordUpdateSuccess = ref(false);
+  const otpEnabled = ref(false);
+  const otpUpdateSuccess = ref(false);
+  const otpVerificationPending = ref(storedOtpVerificationPending);
+  const otpVerificationSuccess = ref(false);
+  const partiallyAuthenticated = ref(storedPartiallyAuthenticated);
+  const pendingEmail = ref(storedPendingEmail);
 
   const { 
     getUser: fetchUser, 
@@ -25,10 +34,17 @@ export const useAuthStore = defineStore('auth', () => {
     resendVerificationEmail, 
     verifyEmail,
     updateProfile,
-    updatePassword
+    updatePassword,
+    getOtpSettings,
+    toggleOtpVerification,
+    verifyOtp,
+    requestOtp
   } = useUserApi();
 
-  const isAuthenticated = computed(() => !!user.value);
+  // User is authenticated if they have user data AND either OTP is not enabled or OTP verification is not pending
+  const isAuthenticated = computed(() => {
+    return !!user.value && (!otpEnabled.value || !otpVerificationPending.value);
+  });
   const isVerified = computed(() => !!user.value?.email_verified_at);
 
   async function getUser() {
@@ -40,19 +56,48 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function loginUser(email: string, password: string) {
+  async function loginUser(email: string, password: string, captchaToken: string) {
     isLoading.value = true;
     try {
-      await login(email, password);
-      await getUser();
-      await getUserRole();
+      // Store the email for later use
+      pendingEmail.value = email;
+      localStorage.setItem('pending_email', email);
+      
+      // Perform login
+      await login(email, password, captchaToken);
+      
+      // Fetch OTP settings from the server
+      await getOtpStatus();
+      
+      // Check if OTP verification is enabled
+      if (otpEnabled.value) {
+        // Set partial authentication state
+        partiallyAuthenticated.value = true;
+        otpVerificationPending.value = true;
+        
+        // Persist authentication state in localStorage
+        localStorage.setItem('partially_authenticated', 'true');
+        localStorage.setItem('otp_verification_pending', 'true');
+        
+        // Don't fetch user data yet - we'll do that after OTP verification
+      } else {
+        // If OTP is not enabled, complete the authentication process
+        await getUser();
+        await getUserRole();
+        partiallyAuthenticated.value = false;
+        
+        // Clear partial authentication state in localStorage
+        localStorage.removeItem('partially_authenticated');
+        localStorage.removeItem('otp_verification_pending');
+        localStorage.removeItem('pending_email');
+      }
     } finally {
       isLoading.value = false;
     }
   }
 
-  async function registerUser(name: string, email: string, password: string, password_confirmation: string) {
-    await register(name, email, password, password_confirmation);
+  async function registerUser(name: string, email: string, password: string, password_confirmation: string, captchaToken: string) {
+    await register(name, email, password, password_confirmation, captchaToken);
     registrationSuccess.value = true;
     await getUser();
   }
@@ -92,7 +137,17 @@ export const useAuthStore = defineStore('auth', () => {
     await logout();
     user.value = null;
     role.value = null;
+    
+    // Clear all authentication state from localStorage
     localStorage.removeItem('user_role');
+    localStorage.removeItem('partially_authenticated');
+    localStorage.removeItem('otp_verification_pending');
+    localStorage.removeItem('pending_email');
+    
+    // Reset OTP-related state
+    otpVerificationPending.value = false;
+    partiallyAuthenticated.value = false;
+    pendingEmail.value = '';
   }
 
   function resetFlags() {
@@ -102,6 +157,22 @@ export const useAuthStore = defineStore('auth', () => {
     registrationSuccess.value = false;
     profileUpdateSuccess.value = false;
     passwordUpdateSuccess.value = false;
+    otpUpdateSuccess.value = false;
+    otpVerificationSuccess.value = false;
+  }
+  
+  function resetOtpVerification() {
+    otpVerificationPending.value = false;
+    otpVerificationSuccess.value = false;
+    partiallyAuthenticated.value = false;
+    pendingEmail.value = '';
+    
+    // Clear partial authentication state in localStorage
+    localStorage.removeItem('partially_authenticated');
+    localStorage.removeItem('otp_verification_pending');
+    localStorage.removeItem('pending_email');
+    
+    // We don't log out the user here because we'll do that explicitly in the OtpVerification component
   }
   
   async function getUserRole() {
@@ -127,6 +198,88 @@ export const useAuthStore = defineStore('auth', () => {
       isLoading.value = false;
     }
   }
+  
+  async function getOtpStatus() {
+    try {
+      isLoading.value = true;
+      const response = await getOtpSettings();
+      otpEnabled.value = response.otp_enabled;
+      return response.otp_enabled;
+    } catch (error) {
+      console.error('Failed to get OTP status:', error);
+      throw error;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+  
+  async function toggleOtp(enabled) {
+    try {
+      isLoading.value = true;
+      otpUpdateSuccess.value = false;
+      await toggleOtpVerification(enabled);
+      otpEnabled.value = enabled;
+      otpUpdateSuccess.value = true;
+    } catch (error) {
+      console.error('Failed to toggle OTP verification:', error);
+      throw error;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+  
+  async function requestOtpCode() {
+    try {
+      isLoading.value = true;
+      
+      if (!pendingEmail.value) {
+        throw new Error('No email available for OTP request');
+      }
+      
+      await requestOtp(pendingEmail.value);
+      return true;
+    } catch (error) {
+      console.error('Failed to request OTP code:', error);
+      throw error;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+  
+  async function verifyOtpCode(otp: string) {
+    try {
+      isLoading.value = true;
+      otpVerificationSuccess.value = false;
+      
+      if (!pendingEmail.value) {
+        throw new Error('No email available for OTP verification');
+      }
+      
+      await verifyOtp(pendingEmail.value, otp);
+      
+      // OTP verification successful, complete the authentication process
+      if (partiallyAuthenticated.value) {
+        await getUser();
+        await getUserRole();
+      }
+      
+      otpVerificationSuccess.value = true;
+      otpVerificationPending.value = false;
+      partiallyAuthenticated.value = false;
+      
+      // Clear partial authentication state in localStorage
+      localStorage.removeItem('partially_authenticated');
+      localStorage.removeItem('otp_verification_pending');
+      localStorage.removeItem('pending_email');
+      
+      return true;
+    } catch (error) {
+      console.error('Failed to verify OTP code:', error);
+      throw error;
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
   return {
     user,
@@ -140,6 +293,12 @@ export const useAuthStore = defineStore('auth', () => {
     registrationSuccess,
     profileUpdateSuccess,
     passwordUpdateSuccess,
+    otpEnabled,
+    otpUpdateSuccess,
+    otpVerificationPending,
+    otpVerificationSuccess,
+    partiallyAuthenticated,
+    pendingEmail,
     getUser,
     getUserRole,
     loginUser,
@@ -151,6 +310,11 @@ export const useAuthStore = defineStore('auth', () => {
     updateUserProfile,
     updateUserPassword,
     logoutUser,
-    resetFlags
+    resetFlags,
+    resetOtpVerification,
+    getOtpStatus,
+    toggleOtp,
+    requestOtpCode,
+    verifyOtpCode
   };
 });

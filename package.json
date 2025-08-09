@@ -20,6 +20,7 @@
   "dependencies": {
     "@component-hook/pdf-canvas": "^1.1.1",
     "@primeuix/themes": "^1.1.2",
+    "@unhead/vue": "^2.0.14",
     "axios": "^1.10.0",
     "browser-image-compression": "^2.0.2",
     "chart.js": "^4.5.0",
@@ -32,6 +33,7 @@
     "primevue": "^4.3.5",
     "vue": "^3.5.17",
     "vue-i18n": "^11.1.6",
+    "vue-recaptcha": "^3.0.0-alpha.6",
     "vue-router": "^4.5.1",
     "vue-toast-notification": "^3.1.3"
   },

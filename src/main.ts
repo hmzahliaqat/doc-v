@@ -10,6 +10,7 @@ import { createPinia } from './stores';
 import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
 import 'primeicons/primeicons.css'
+import { VueRecaptchaPlugin } from 'vue-recaptcha';
 
 import 'virtual:svg-icons-register';
 import '@/styles/index.css';
@@ -26,5 +27,8 @@ app.use(PrimeVue, {
     theme: {
         preset: Aura
     }
+});
+app.use(VueRecaptchaPlugin, {
+    v2SiteKey: "6LfEjZ8rAAAAAENDoqHf53o-JBp-nHiaFvaCSib2"
 });
 app.mount('#app');

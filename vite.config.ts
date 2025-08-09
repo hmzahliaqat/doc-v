@@ -42,6 +42,10 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  optimizeDeps: {
+    include: ['vue-recaptcha', '@unhead/vue'],
+    force: true
+  },
   esbuild: {
     pure: ['console.log'],
     drop: ['debugger'],

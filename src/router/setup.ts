@@ -11,6 +11,7 @@ import Register from '@/pages/Auth/Register.vue';
 import ForgotPassword from '@/pages/Auth/ForgotPassword.vue';
 import ResetPassword from '@/pages/Auth/ResetPassword.vue';
 import VerifyEmail from '@/pages/Auth/VerifyEmail.vue';
+import OtpVerification from '@/pages/Auth/OtpVerification.vue';
 import Profile from '@/pages/Auth/Profile.vue';
 import Index from '@/pages/Dashboard/Index.vue';
 import Home from '@/pages/home/index.vue';
@@ -89,6 +90,12 @@ const routes: Array<RouteRecordRaw> = [
         name: 'verification.notice',
         component: VerifyEmail,
         meta: { requiresAuth: true },
+      },
+      {
+        path: 'otp-verification',
+        name: 'otp-verification',
+        component: OtpVerification,
+        meta: { requiresAuth: false },
       },
     ],
   },
@@ -175,7 +182,8 @@ export const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const auth = useAuthStore();
 
-  if (auth.user === null) {
+  // If not partially authenticated, try to get user data
+  if (auth.user === null && !auth.partiallyAuthenticated) {
     await auth.getUser();
     
     // If user is authenticated but role is not fetched yet, fetch it
@@ -188,13 +196,37 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
+  // If user is authenticated or partially authenticated, ensure OTP settings are loaded
+  if (auth.isAuthenticated || auth.partiallyAuthenticated) {
+    try {
+      // Fetch OTP settings in these cases:
+      // 1. Coming from login page
+      // 2. Going to home/dashboard
+      // 3. Going to OTP verification page
+      // 4. After a page refresh (from.name will be null)
+      if (from.name === 'login' || to.name === 'home' || to.name === 'dashboard' || 
+          to.name === 'otp-verification' || from.name === null) {
+        await auth.getOtpStatus();
+      }
+    } catch (error) {
+      console.error('Failed to fetch OTP settings:', error);
+    }
+  }
 
   if (auth.isAuthenticated && auth.role === 'super-admin' && 
       (to.name === 'login' || to.name === 'home' || to.name === 'dashboard')) {
     return next({ name: 'superadmindashboard' });
   }
 
-  if (to.name === 'login' && auth.isAuthenticated) {
+  // Check if OTP verification is pending
+  if ((auth.isAuthenticated || auth.partiallyAuthenticated) && 
+      auth.otpEnabled && auth.otpVerificationPending && 
+      to.name !== 'otp-verification' && to.name !== 'login') {
+    return next({ name: 'otp-verification' });
+  }
+
+  // Allow partially authenticated users to go back to login
+  if (to.name === 'login' && auth.isAuthenticated && !auth.partiallyAuthenticated) {
     return next({ name: 'home' });
   }
 

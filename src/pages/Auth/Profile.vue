@@ -15,6 +15,11 @@ const profileUpdateError = ref('');
 const profileUpdateSuccess = ref('');
 const isProfileUpdateLoading = ref(false);
 
+// OTP verification
+const otpError = ref('');
+const otpSuccess = ref('');
+const isOtpLoading = ref(false);
+
 // Password update
 const currentPassword = ref('');
 const newPassword = ref('');
@@ -39,6 +44,12 @@ onMounted(() => {
       }
     });
   }
+  
+  // Fetch OTP settings
+  authStore.getOtpStatus().catch(error => {
+    console.error('Failed to fetch OTP settings:', error);
+    otpError.value = 'Failed to load OTP verification settings';
+  });
 });
 
 const updateProfile = async () => {
@@ -123,6 +134,32 @@ const resendVerificationEmail = async () => {
 const goToDashboard = () => {
   router.push({ name: 'home' });
 };
+
+const toggleOtpVerification = async (event) => {
+  const enabled = event.target.checked;
+  
+  try {
+    isOtpLoading.value = true;
+    otpError.value = '';
+    otpSuccess.value = '';
+    
+    await authStore.toggleOtp(enabled);
+    
+    if (authStore.otpUpdateSuccess) {
+      otpSuccess.value = enabled 
+        ? 'OTP verification enabled successfully' 
+        : 'OTP verification disabled successfully';
+      authStore.resetFlags();
+    }
+  } catch (error) {
+    console.error('OTP verification toggle failed:', error);
+    otpError.value = 'Failed to update OTP verification settings. Please try again.';
+    // Revert checkbox state on error
+    event.target.checked = authStore.otpEnabled;
+  } finally {
+    isOtpLoading.value = false;
+  }
+};
 </script>
 
 <template>
@@ -193,6 +230,40 @@ const goToDashboard = () => {
       </form>
     </div>
 
+    <!-- OTP Verification -->
+    <div class="bg-white px-6 py-8 shadow sm:rounded-lg sm:px-8 mb-8">
+      <h3 class="text-lg font-medium leading-6 text-gray-900 mb-6">OTP Verification</h3>
+      
+      <div v-if="otpError" class="rounded-md bg-red-50 p-4 mb-4">
+        <div class="text-sm text-red-700">{{ otpError }}</div>
+      </div>
+      
+      <div v-if="otpSuccess" class="rounded-md bg-green-50 p-4 mb-4">
+        <div class="text-sm text-green-700">{{ otpSuccess }}</div>
+      </div>
+      
+      <div class="relative flex items-start">
+        <div class="flex h-6 items-center">
+          <input 
+            :id="'otp-verification'" 
+            :name="'otp-verification'" 
+            type="checkbox" 
+            :checked="authStore.otpEnabled"
+            @change="toggleOtpVerification"
+            :disabled="isOtpLoading"
+            class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+          />
+        </div>
+        <div class="ml-3 text-sm leading-6">
+          <label :for="'otp-verification'" class="font-medium text-gray-900">OTP Verification</label>
+          <p class="text-gray-500">Enable OTP verification for additional security when logging in.</p>
+          <div v-if="isOtpLoading" class="mt-2 text-sm text-gray-500">
+            Updating OTP settings...
+          </div>
+        </div>
+      </div>
+    </div>
+    
     <!-- Update Password -->
     <div class="bg-white px-6 py-8 shadow sm:rounded-lg sm:px-8 mb-8">
       <h3 class="text-lg font-medium leading-6 text-gray-900 mb-6">Update Password</h3>

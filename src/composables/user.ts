@@ -25,7 +25,7 @@ export const useUserApi = () => {
   }
 
 // Modified login function with dynamic wait for CSRF token
-  async function login(email: string, password: string) {
+  async function login(email: string, password: string, captchaToken: string) {
     try {
       // First, fetch the CSRF token and wait until it's set
       await baseAxios.get(`/sanctum/csrf-cookie`);
@@ -36,7 +36,11 @@ export const useUserApi = () => {
       }
 
       // Now that the CSRF token is set, proceed with the login request
-      const response = await baseAxios.post(`login`, { email, password });
+      const response = await baseAxios.post(`login`, { 
+        email, 
+        password,
+        'g-recaptcha-response': captchaToken 
+      });
 
       return response.data;
     } catch (error: any) {
@@ -58,7 +62,7 @@ export const useUserApi = () => {
   }
 
 
-  async function register(name: string, email: string, password: string, password_confirmation: string) {
+  async function register(name: string, email: string, password: string, password_confirmation: string, captchaToken: string) {
     try {
       await baseAxios.get(`/sanctum/csrf-cookie`);
       while (!isCsrfTokenSet()) {
@@ -69,6 +73,7 @@ export const useUserApi = () => {
         email,
         password,
         password_confirmation,
+        'g-recaptcha-response': captchaToken
       });
         
       return response.data;
@@ -180,6 +185,59 @@ export const useUserApi = () => {
     }
   }
 
+  async function getOtpSettings() {
+    try {
+      const response = await baseAxios.get(`/api/user/otp-settings`);
+      return response.data;
+    } catch (error) {
+      console.error('Get OTP settings failed:', error);
+      throw error;
+    }
+  }
+
+  async function toggleOtpVerification(enabled: boolean) {
+    try {
+      await baseAxios.get(`/sanctum/csrf-cookie`);
+      sleep(1000);
+      const response = await baseAxios.post(`/api/user/otp-settings`, {
+        otp_enabled: enabled
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Toggle OTP verification failed:', error);
+      throw error;
+    }
+  }
+
+  async function verifyOtp(email: string, otp_code: string) {
+    try {
+      await baseAxios.get(`/sanctum/csrf-cookie`);
+      sleep(1000);
+      const response = await baseAxios.post(`/api/user/verify-otp`, {
+        email: email,
+        otp_code: otp_code
+      });
+      return response.data;
+    } catch (error) {
+      console.error('OTP verification failed:', error);
+      throw error;
+    }
+  }
+
+  async function requestOtp(email: string) {
+    try {
+      await baseAxios.get(`/sanctum/csrf-cookie`);
+      sleep(1000);
+      const response = await baseAxios.post(`/api/user/request-otp`, {
+        email: email
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Request OTP failed:', error);
+      throw error;
+    }
+  }
+
   return {
     getUser,
     login,
@@ -192,5 +250,9 @@ export const useUserApi = () => {
     updatePassword,
     logout,
     getUserRole,
+    getOtpSettings,
+    toggleOtpVerification,
+    verifyOtp,
+    requestOtp,
   };
 };
