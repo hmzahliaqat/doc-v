@@ -80,7 +80,7 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue';
 import { useToast } from 'primevue/usetoast';
-import { useSuperAdminApi } from '@/composables/superadmin.js';
+import { useSuperAdminApi } from '@/composables/superadmin';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
 import Tag from 'primevue/tag';

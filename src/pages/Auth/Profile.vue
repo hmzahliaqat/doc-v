@@ -3,6 +3,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/modules/user';
 import { useConfigStore } from '@/stores';
 import { useRouter } from 'vue-router';
+import EmailVerificationBanner from '@/components/EmailVerificationBanner.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -137,27 +138,8 @@ const goToDashboard = () => {
     <div class="bg-white px-6 py-8 shadow sm:rounded-lg sm:px-8 mb-8">
       <h3 class="text-lg font-medium leading-6 text-gray-900 mb-6">Profile Information</h3>
       
-      <div v-if="!isVerified" class="rounded-md bg-yellow-50 p-4 mb-6">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-              <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <div class="ml-3">
-            <h3 class="text-sm font-medium text-yellow-800">Email not verified</h3>
-            <div class="mt-2 text-sm text-yellow-700">
-              <p>Your email address is not verified. Please verify your email to access all features.</p>
-              <button 
-                @click="resendVerificationEmail" 
-                class="mt-2 text-sm font-medium text-yellow-800 hover:text-yellow-600"
-              >
-                Resend verification email
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Email Verification Banner -->
+      <EmailVerificationBanner />
       
       <form @submit.prevent="updateProfile" class="space-y-6">
         <div v-if="profileUpdateError" class="rounded-md bg-red-50 p-4 mb-4">

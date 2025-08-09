@@ -25,7 +25,8 @@ export const useAuthStore = defineStore('auth', () => {
     resendVerificationEmail, 
     verifyEmail,
     updateProfile,
-    updatePassword
+    updatePassword,
+    checkVerificationStatus
   } = useUserApi();
 
   const isAuthenticated = computed(() => !!user.value);
@@ -53,6 +54,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function registerUser(name: string, email: string, password: string, password_confirmation: string) {
     await register(name, email, password, password_confirmation);
+    // Send verification email automatically after registration
+    await resendVerification();
     registrationSuccess.value = true;
     await getUser();
   }
@@ -73,8 +76,14 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function verifyUserEmail(id: string, hash: string) {
-    await verifyEmail(id, hash);
-    await getUser();
+    try {
+      await verifyEmail(id, hash);
+      await getUser();
+      return true;
+    } catch (error) {
+      console.error('Email verification failed:', error);
+      return false;
+    }
   }
 
   async function updateUserProfile(userData: { name?: string; email?: string; current_password?: string; password?: string; password_confirmation?: string }) {
@@ -127,6 +136,20 @@ export const useAuthStore = defineStore('auth', () => {
       isLoading.value = false;
     }
   }
+  
+  async function checkEmailVerificationStatus() {
+    try {
+      const status = await checkVerificationStatus();
+      // Update user verification status if we have a user object
+      if (user.value) {
+        user.value.email_verified_at = status.email_verified ? status.email_verified_at : null;
+      }
+      return status;
+    } catch (error) {
+      console.error('Failed to check verification status:', error);
+      return { email_verified: false, email_verified_at: null };
+    }
+  }
 
   return {
     user,
@@ -151,6 +174,7 @@ export const useAuthStore = defineStore('auth', () => {
     updateUserProfile,
     updateUserPassword,
     logoutUser,
-    resetFlags
+    resetFlags,
+    checkEmailVerificationStatus
   };
 });

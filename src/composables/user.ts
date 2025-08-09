@@ -180,6 +180,19 @@ export const useUserApi = () => {
     }
   }
 
+  async function checkVerificationStatus() {
+    try {
+      const response = await axiosInstance.get(`email/verification-status`);
+      return {
+        email_verified: response.data.email_verified,
+        email_verified_at: response.data.email_verified_at
+      };
+    } catch (error) {
+      console.error('Error checking verification status:', error);
+      return { email_verified: false, email_verified_at: null };
+    }
+  }
+
   return {
     getUser,
     login,
@@ -192,5 +205,6 @@ export const useUserApi = () => {
     updatePassword,
     logout,
     getUserRole,
+    checkVerificationStatus,
   };
 };

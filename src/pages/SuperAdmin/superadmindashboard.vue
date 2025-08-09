@@ -1,19 +1,29 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useAuthStore } from '@/stores/modules/user';
-import { useSuperAdminApi } from '@/composables/superadmin.ts';
+import { useSuperAdminApi } from '@/composables/superadmin';
 
 const Stats = ref(null);
+const isLoading = ref(true);
+const error = ref(null);
 
 const authStore = useAuthStore();
 const { getStats } = useSuperAdminApi();
 
-
-
 onMounted(async () => {
-  // Any initialization logic for the super admin dashboard
- Stats.value =  await getStats();
-  console.log('Super Admin Dashboard mounted');
+  try {
+    isLoading.value = true;
+    error.value = null;
+    
+    // Fetch stats data
+    Stats.value = await getStats();
+    console.log('Super Admin Dashboard mounted');
+  } catch (err) {
+    console.error('Error loading superadmin dashboard data:', err);
+    error.value = 'Failed to load dashboard data. Please try again later.';
+  } finally {
+    isLoading.value = false;
+  }
 });
 </script>
 
@@ -26,10 +36,35 @@ onMounted(async () => {
       id="page-container"
       class="mx-auto flex min-h-screen w-full min-w-[320px] flex-col bg-slate-50 rounded-lg"
     >
+      <!-- Loading State -->
+      <div v-if="isLoading" class="flex items-center justify-center min-h-screen">
+        <div class="text-center">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-violet-500 border-t-transparent"></div>
+          <p class="mt-4 text-lg text-gray-700">Loading dashboard data...</p>
+        </div>
+      </div>
 
+      <!-- Error State -->
+      <div v-else-if="error" class="flex items-center justify-center min-h-screen">
+        <div class="text-center bg-white p-8 rounded-lg shadow-md max-w-md">
+          <div class="text-red-500 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 class="text-xl font-bold text-gray-800 mb-2">Error Loading Dashboard</h2>
+          <p class="text-gray-600 mb-4">{{ error }}</p>
+          <button 
+            @click="window.location.reload()" 
+            class="px-4 py-2 bg-violet-600 text-white rounded hover:bg-violet-700 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
 
-      <!-- Page Content -->
-      <main id="page-content" class="flex max-w-full flex-auto flex-col">
+      <!-- Page Content (only shown when not loading and no error) -->
+      <main v-else id="page-content" class="flex max-w-full flex-auto flex-col">
         <!-- Page Heading -->
         <div class="container mx-auto px-4 pt-6 lg:px-8 lg:pt-8 xl:max-w-7xl">
           <div

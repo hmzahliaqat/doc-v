@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import LineStyleChart from "./Components/LineStyleChart.vue";
 import PieChart from "./Components/PieChart.vue";
 import { useDashboardApi } from "@/composables/dashboard";
+import EmailVerificationBanner from '@/components/EmailVerificationBanner.vue';
 
 const { getData } = useDashboardApi();   
 const documents = ref();
@@ -84,6 +85,9 @@ onMounted(async() => {
           </div>
         </div>
       </div>
+
+      <!-- Email Verification Banner -->
+      <EmailVerificationBanner class="mb-8" />
 
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

@@ -17,7 +17,7 @@ const resendLoading = ref(false);
 const user = computed(() => authStore.user);
 const isVerified = computed(() => authStore.isVerified);
 
-// For handling the verification link from email
+  // For handling the verification link from email
 onMounted(async () => {
   // Check if we're verifying from an email link
   const id = route.params.id?.toString();
@@ -29,16 +29,29 @@ onMounted(async () => {
       errorMessage.value = '';
       successMessage.value = '';
       
-      await authStore.verifyUserEmail(id, hash);
-      successMessage.value = 'Your email has been verified successfully!';
+      const success = await authStore.verifyUserEmail(id, hash);
       
-      // Redirect to dashboard after a short delay
-      setTimeout(() => {
-        router.push({ name: 'home' });
-      }, 2000);
+      if (success) {
+        successMessage.value = 'Your email has been verified successfully!';
+        
+        // Redirect to dashboard after a short delay
+        setTimeout(() => {
+          router.push({ name: 'home', query: { verified: '1' } });
+        }, 2000);
+      } else {
+        // Redirect to verification failed page
+        router.push({ 
+          name: 'verification.failed', 
+          query: { error: 'verification-failed' } 
+        });
+      }
     } catch (error) {
       console.error('Email verification failed:', error);
-      errorMessage.value = 'Failed to verify email. The verification link may be invalid or expired.';
+      // Redirect to verification failed page
+      router.push({ 
+        name: 'verification.failed', 
+        query: { error: 'invalid-link' } 
+      });
     } finally {
       isLoading.value = false;
     }

@@ -11,6 +11,7 @@ import Register from '@/pages/Auth/Register.vue';
 import ForgotPassword from '@/pages/Auth/ForgotPassword.vue';
 import ResetPassword from '@/pages/Auth/ResetPassword.vue';
 import VerifyEmail from '@/pages/Auth/VerifyEmail.vue';
+import EmailVerificationFailed from '@/pages/Auth/EmailVerificationFailed.vue';
 import Profile from '@/pages/Auth/Profile.vue';
 import Index from '@/pages/Dashboard/Index.vue';
 import Home from '@/pages/home/index.vue';
@@ -89,6 +90,12 @@ const routes: Array<RouteRecordRaw> = [
         name: 'verification.notice',
         component: VerifyEmail,
         meta: { requiresAuth: true },
+      },
+      {
+        path: 'email/verification-failed',
+        name: 'verification.failed',
+        component: EmailVerificationFailed,
+        meta: { requiresAuth: false },
       },
     ],
   },
